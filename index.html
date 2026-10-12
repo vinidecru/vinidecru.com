@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ViniDecrù | Azienda Agricola Eroica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Syne:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9f8f6; color: #1a1817; line-height: 1.6; overflow-x: hidden; position: relative; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 5%;
+      background-color: rgba(249, 248, 246, 0.98);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #4a1521;
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    nav { display: flex; gap: 1.5rem; }
+    nav a {
+      text-decoration: none;
+      color: #1a1817;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: opacity 0.3s;
+      cursor: pointer;
+    }
+    nav a:hover { opacity: 0.6; }
+
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 5px;
+    }
+    .menu-toggle span {
+      width: 25px;
+      height: 3px;
+      background-color: #4a1521;
+      border-radius: 2px;
+    }
+
+    /* Hero con la foto di famiglia */
+    .hero {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 6rem 5% 4rem;
+      overflow: hidden;
+      color: #fff;
+      background-image: url('1.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(26,24,23,0.75) 0%, rgba(74,21,33,0.65) 100%);
+      z-index: 1;
+    }
+    .hero-content-wrapper {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-container { max-width: 850px; margin: 0 auto 2rem; text-align: center; }
+    .hero-tag { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; color: #fff; font-weight: 700; margin-bottom: 1.2rem; display: inline-block; background-color: rgba(74, 21, 33, 0.85); padding: 0.4rem 1.2rem; border-radius: 50px; border: 1px solid rgba(255,255,255,0.2); }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(2.2rem, 5.5vw, 3.8rem); font-weight: 700; line-height: 1.15; color: #fff; margin-bottom: 1.5rem; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    .hero p { font-size: clamp(1rem, 2vw, 1.15rem); color: #f0ece6; max-width: 700px; margin: 0 auto 2rem; font-weight: 300; text-shadow: 0 1px 5px rgba(0,0,0,0.4); }
+    
+    .hero-cta-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 0.9rem 2.2rem; background-color: #4a1521; color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 100px; transition: transform 0.3s, background-color 0.3s; cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(74, 21, 33, 0.3); }
+    .btn:hover { background-color: #2d0d14; transform: translateY(-2px); }
+    
+    .btn-outline { background-color: rgba(255,255,255,0.1); border: 2px solid #fff; color: #fff; box-shadow: none; backdrop-filter: blur(5px); }
+    .btn-outline:hover { background-color: #fff; color: #4a1521; }
+
+    /* Galleria a scorrimento in Homepage */
+    .home-gallery { width: 100%; padding: 4rem 5%; background-color: #fff; position: relative; z-index: 10; border-top: 1px solid rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .home-gallery h2 { text-align: center; font-family: 'Syne', sans-serif; font-size: 2rem; color: #1a1817; margin-bottom: 2rem; letter-spacing: -0.5px; }
+    
+    .carousel-container { position: relative; max-width: 900px; margin: 0 auto; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+    .carousel-track-wrapper { width: 100%; overflow: hidden; }
+    .carousel-track { display: flex; transition: transform 0.5s ease-in-out; }
+    .carousel-slide { min-width: 100%; height: 550px; position: relative; }
+    .carousel-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .carousel-caption { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: #fff; padding: 1.5rem; text-align: center; font-size: 1.1rem; font-weight: 500; font-family: 'Syne', sans-serif; }
+    
+    .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(74, 21, 33, 0.85); color: #fff; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.3s, transform 0.3s; z-index: 10; }
+    .carousel-btn:hover { background: rgba(74, 21, 33, 1); transform: translateY(-50%) scale(1.1); }
+    .carousel-btn.prev { left: 15px; }
+    .carousel-btn.next { right: 15px; }
+
+    /* Stile Marquee */
+    .marquee-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      background: #ffffff;
+      padding: 1rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(74, 21, 33, 0.1);
+    }
+    .marquee-track {
+      display: inline-block;
+      animation: scrollMarquee 25s linear infinite;
+    }
+    .marquee-item {
+      display: inline-block;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #4a1521;
+      text-transform: uppercase;
+      padding: 0 2rem;
+    }
+    .marquee-item span {
+      color: #802334;
+      margin-left: 2rem;
+      font-weight: 500;
+    }
+    @keyframes scrollMarquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Gestione Pagine */
+    .section { padding: 3rem 5%; max-width: 1200px; margin: 0 auto; display: none; position: relative; z-index: 2; }
+    .section.active { display: block; }
+
+    .section-header { margin-bottom: 2.5rem; text-align: center; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; color: #1a1817; letter-spacing: -0.5px; text-transform: uppercase; }
+
+    .territorio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; background-color: #fff; padding: 2.5rem; border-radius: 20px; border: 1px solid rgba(0, 0, 0, 0.04); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.02); }
+    .territorio-text p { font-size: 1rem; line-height: 1.7; color: #383431; font-weight: 300; margin-bottom: 1rem; }
+    .territorio-map { width: 100%; height: 450px; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,0.08); z-index: 1; border: 1px solid rgba(0,0,0,0.08); }
+
+    /* Custom pin per Leaflet */
+    .custom-pin-wrapper { background: transparent; border: none; }
+    .custom-pin-container {
+      width: 28px;
+      height: 28px;
+      background-color: #4a1521;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .custom-pin-inner {
+      width: 8px;
+      height: 8px;
+      background-color: #ffffff;
+      border-radius: 50%;
+    }
+
+    /* Impaginazione Storia a Zig-Zag */
+    .storia-card { 
+      background-color: #fff; 
+      padding: 3.5rem 2.5rem; 
+      border-radius: 24px; 
+      border: 1px solid rgba(74, 21, 33, 0.08); 
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03); 
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+    .history-zigzag-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+      background: #faf8f5;
+      padding: 2.5rem;
+      border-radius: 20px;
+      border: 1px solid rgba(74, 21, 33, 0.08);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+    }
+    .history-zigzag-row.reverse {
+      direction: rtl;
+    }
+    .history-zigzag-row.reverse > * {
+      direction: ltr;
+    }
+    .history-img-box {
+      background: #fff;
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px solid rgba(74, 21, 33, 0.1);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+    .history-img-box img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 12px;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+    .history-img-caption {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #4a1521;
+      font-style: italic;
+      letter-spacing: 0.5px;
+    }
+    .history-img-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .history-text-box {
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: #383431;
+      font-weight: 300;
+    }
+    .history-text-box h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.35rem;
+      color: #4a1521;
+      margin-bottom: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .history-text-box p {
+      margin-bottom: 1rem;
+    }
+    .history-text-box p:last-child {
+      margin-bottom: 0;
+    }
+    .personaggio-link { color: #4a1521; font-weight: 700; text-decoration: underline; cursor: pointer; transition: color 0.3s; }
+    .personaggio-link:hover { color: #802334; }
+
+    /* Nuova Filosofia in Stile Dark */
+    .filosofia-container {
+      margin-top: 1rem;
+      padding: 3rem 2.5rem;
+      background-color: #1a1817; 
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+      grid-column: span 2;
+    }
+    .filosofia-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      letter-spacing: -0.5px;
+    }
+    .filosofia-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+    }
+    .filosofia-item {
+      background: rgba(255, 255, 255, 0.05); 
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease, background 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .filosofia-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background-color: #802334; 
+    }
+    .filosofia-item:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .filosofia-item h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      color: #fff;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      line-height: 1.4;
+    }
+    .filosofia-item p {
+      font-size: 0.95rem;
+      color: #d1cdca;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    
+    .card { background: #fff; padding: 2rem; border-radius: 18px; border: 1px solid rgba(0, 0, 0, 0.04); display: flex; flex-direction: column; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; position: relative; overflow: hidden; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+    .card-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 1.2rem; }
+    
+    .ribbon {
+      position: absolute;
+      top: 25px;
+      right: -45px;
+      width: 200px;
+      transform: rotate(45deg);
+      background-color: #802334;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 0.4rem 0;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      z-index: 5;
+      text-transform: uppercase;
+      animation: ribbonPulse 2s ease-in-out infinite alternate;
+    }
+    @keyframes ribbonPulse {
+      0% { transform: rotate(45deg) scale(1); }
+      100% { transform: rotate(45deg) scale(1.05); }
+    }
+
+    .card-img-bottle {
+      width: 100%;
+      height: 260px;
+      object-fit: contain;
+      background-color: #fcfbfa;
+      border-radius: 12px;
+      margin-bottom: 1.2rem;
+      padding: 0.5rem;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .card-tag { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #4a1521; font-weight: 600; margin-bottom: 0.6rem; display: block; }
+    .card h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 0.6rem; color: #1a1817; }
+    .card p { font-size: 0.9rem; color: #666360; font-weight: 400; margin-bottom: 1.2rem; }
+    .specs-list { list-style: none; padding-top: 0.8rem; border-top: 1px solid rgba(0, 0, 0, 0.06); font-size: 0.85rem; color: #555; }
+    .specs-list li { margin-bottom: 0.4rem; line-height: 1.5; }
+
+    .vitigno-link {
+      color: #4a1521;
+      text-decoration: underline;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .vitigno-link:hover {
+      color: #802334;
+    }
+    
+    .btn-buy-card {
+        background-color: #2d0d14;
+        color: #fff;
+        border: 1px solid #2d0d14;
+    }
+    .btn-buy-card:hover {
+        background-color: #fff;
+        color: #2d0d14;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      backdrop-filter: blur(5px);
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-content {
+      background-color: #fff;
+      border-radius: 20px;
+      max-width: 750px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2.5rem;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    }
+    .modal-close {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.5rem;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #4a1521;
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+    .modal-img {
+      width: 100%;
+      max-height: 380px;
+      object-fit: contain;
+      background-color: #fcfbfa;
+      border-radius: 14px;
+      margin-bottom: 1.5rem;
+      padding: 0.5rem;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      color: #1a1817;
+      margin-bottom: 0.5rem;
+    }
+
+    .degustazioni-intro { font-size: 1.05rem; color: #444; margin-bottom: 2.5rem; font-weight: 400; text-align: center; max-width: 900px; margin-left: auto; margin-right: auto; line-height: 1.8; }
+    .degustazioni-intro strong { color: #4a1521; }
+    .degustazioni-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+    .degustazione-card { background: #fff; padding: 2rem; border-radius: 18px; border: 1px solid rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; justify-content: space-between; }
+    .degustazione-card img { width: 100%; height: 200px; object-fit: contain; background-color: #fcfbfa; border-radius: 12px; margin-bottom: 1.2rem; padding: 0.5rem; border: 1px solid rgba(0,0,0,0.03); }
+    .degustazione-card h3 { font-family: 'Syne', sans-serif; font-size: 1.3rem; color: #4a1521; margin-bottom: 1rem; }
+    .degustazione-card ul { list-style: none; }
+    .degustazione-card ul li { margin-bottom: 0.5rem; color: #444; font-size: 0.9rem; }
+
+    .eventi-container { margin-top: 4rem; padding-top: 3rem; border-top: 1px solid rgba(0, 0, 0, 0.08); }
+    .eventi-list { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; }
+    .evento-row {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.03);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .evento-row:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(74, 21, 33, 0.08);
+    }
+    .evento-img-wrap {
+      width: 100%;
+      height: 100%;
+      min-height: 200px;
+      background-color: #eae5dd;
+    }
+    .evento-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .evento-content {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .evento-badge {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #4a1521;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+    .evento-content h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      color: #1a1817;
+      margin-bottom: 0.8rem;
+    }
+    .evento-content p {
+      font-size: 0.95rem;
+      color: #55524f;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .form-container { background: #fff; padding: 2rem; border-radius: 20px; border: 1px solid rgba(0,0,0,0.04); max-width: 800px; margin: 0 auto; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: #1a1817; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.8rem 1rem; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; font-size: 0.9rem; outline: none; }
+
+    .travel-card { background-color: #fff; padding: 2.5rem; border-radius: 20px; border: 1px solid rgba(0, 0, 0, 0.04); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.02); margin-top: 2rem; }
+    .travel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 1.5rem; }
+    .travel-item h4 { font-family: 'Syne', sans-serif; font-size: 1.2rem; color: #4a1521; margin-bottom: 0.5rem; }
+    .travel-item p { font-size: 0.95rem; color: #555; font-weight: 300; line-height: 1.7; }
+
+    .whatsapp-float { position: fixed; bottom: 1.5rem; right: 1.5rem; background-color: #25d366; color: #fff; width: 55px; height: 55px; border-radius: 50px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.2); text-decoration: none; font-size: 1.6rem; z-index: 1000; }
+
+    footer { background-color: #110f0e; color: #f9f8f6; padding: 4rem 5% 2rem; margin-top: 3rem; }
+    .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2.5rem; }
+    .footer-brand h2 { font-family: 'Syne', sans-serif; font-size: 1.8rem; color: #fff; margin-bottom: 0.5rem; }
+    .footer-brand p { color: #a09d9a; font-size: 0.85rem; line-height: 1.6; }
+    .footer-contacts a { color: #fff; text-decoration: none; }
+    .social-links { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
+    .social-links a { color: #f9f8f6; text-decoration: none; font-size: 0.8rem; font-weight: 500; border: 1px solid rgba(255,255,255,0.2); padding: 0.4rem 0.9rem; border-radius: 50px; }
+
+    .footer-logos-container {
+      max-width: 1200px;
+      margin: 3rem auto 0;
+      padding-top: 2.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+    .footer-logos-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #a09d9a;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+    .footer-logos-grid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .footer-logo-item {
+      background-color: #ffffff;
+      padding: 1rem 1.5rem;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.3s;
+    }
+    .footer-logo-item:hover { transform: translateY(-3px); }
+    .footer-logo-item img {
+      max-height: 75px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .footer-bottom { max-width: 1200px; margin: 3rem auto 0; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.75rem; color: #777471; text-align: center; }
+
+    @media (max-width: 768px) {
+      header { padding: 1rem 5%; }
+      .menu-toggle { display: flex; }
+      nav {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: #f9f8f6;
+        padding: 1.5rem 5%;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        gap: 1.2rem;
+      }
+      nav.show { display: flex; }
+      nav a { font-size: 0.95rem; }
+
+      .hero { padding: 4rem 5%; min-height: 90vh; }
+      .hero-container { margin-bottom: 2rem; }
+      .btn { width: 100%; }
+      .home-gallery { padding: 2rem 5%; }
+      .carousel-slide { height: 350px; }
+
+      .territorio-grid { grid-template-columns: 1fr; padding: 1.5rem; gap: 1.5rem; }
+      .territorio-map { height: 340px; }
+
+      .storia-card { padding: 1.5rem; }
+      .history-zigzag-row, .history-zigzag-row.reverse { 
+        grid-template-columns: 1fr; 
+        direction: ltr !important; 
+      }
+      .card { padding: 1.5rem; }
+      .form-container { padding: 1.5rem; }
+
+      .footer-logos-grid { gap: 1.5rem; }
+      .footer-logo-item { padding: 0.8rem 1.2rem; }
+      .footer-logo-item img { max-height: 60px; }
+
+      .modal-content { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="#" onclick="showSection('home'); return false;" class="logo">ViniDecrù</a>
+    <div class="menu-toggle" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <nav id="mobileNav">
+      <a href="#" onclick="showSection('territorio'); return false;">Il Territorio</a>
+      <a href="#" onclick="showSection('storia'); return false;">La Nostra Storia</a>
+      <a href="#" onclick="showSection('prodotti'); return false;">I Prodotti</a>
+      <a href="#" onclick="showSection('degustazioni'); return false;">Degustazioni ed Eventi</a>
+      <a href="#" onclick="showSection('contatti-section'); return false;">Contatti</a>
+    </nav>
+  </header>
+
+  <!-- HOME CON LA FOTO DI FAMIGLIA -->
+  <section id="home" class="section active" style="padding: 0; max-width: 100%;">
+    <div class="hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-content-wrapper">
+        <div class="hero-container" style="margin-bottom: 2rem;">
+          <span class="hero-tag">Azienda Agricola Eroica</span>
+          <h1>Tradizione di montagna e passione autentica.</h1>
+          <p>Azienda agricola dedita alla produzione di vini VALSUSA DOC, coltivati con passione e rispetto per il territorio, e delle rinomate patate della montagna di Condove De.Co.</p>
+          
+          <div class="hero-cta-group">
+            <a href="#" onclick="showSection('prodotti'); return false;" class="btn">Scopri i nostri vini &rarr;</a>
+            <a href="#" onclick="showSection('degustazioni'); return false;" class="btn btn-outline">Prenota degustazione</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nuova Galleria a Scorrimento in Home Page -->
+    <div class="home-gallery">
+      <h2>I Nostri Momenti in Vigna</h2>
+      <div class="carousel-container">
+        <button class="carousel-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+        <div class="carousel-track-wrapper">
+          <div class="carousel-track" id="homeCarousel">
+            <div class="carousel-slide">
+              <img src="2.jpg" alt="Arzighè in vigna">
+              <div class="carousel-caption">Arzighè in vigna</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="3.jpg" alt="Grappolo di Baratuciat">
+              <div class="carousel-caption">Grappolo di Baratuciat</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="4.jpg" alt="Grappolo di Becuet">
+              <div class="carousel-caption">Grappolo di Becuet</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="5.jpg" alt="Vendemmia in vigna a Giaglione">
+              <div class="carousel-caption">Vendemmia in vigna a Giaglione</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="6.jpg" alt="Grappolo alato">
+              <div class="carousel-caption">Grappolo alato</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="7.jpg" alt="Lavoro in vigna">
+              <div class="carousel-caption">Lavoro in vigna</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="8.jpg" alt="Alba in vigna">
+              <div class="carousel-caption">Alba in vigna</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="9.jpg" alt="Aroun Rouss alla Palazzina di Caccia di Stupinigi">
+              <div class="carousel-caption">Aroun Rouss alla Palazzina di Caccia di Stupinigi</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="10.jpg" alt="Degustazione di Aroun Rouss">
+              <div class="carousel-caption">Degustazione di Aroun Rouss</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="11.jpg" alt="Degustazione presso la Palazzina di Caccia di Stupinigi con Associazione Baratuciat e Vitigni Storici della Sacra">
+              <div class="carousel-caption">Degustazione presso la Palazzina di Caccia di Stupinigi con Associazione Baratuciat e Vitigni Storici della Sacra</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="12.jpg" alt="Escursione insieme alla guida Cesare Scaringella e ai ragazzi di raccontapassi all'Orrido di Foresto">
+              <div class="carousel-caption">Escursione insieme alla guida Cesare Scaringella e ai ragazzi di raccontapassi all'Orrido di Foresto</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="13.jpg" alt="Aroun Bieunc 2021 in vista sulla Sacra di San Michele">
+              <div class="carousel-caption">Aroun Bieunc 2021 in vista sulla Sacra di San Michele</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="14.jpg" alt="Primo storico impianto di Baratuciat all'Arronco">
+              <div class="carousel-caption">Primo storico impianto di Baratuciat all'Arronco</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="15.jpg" alt="Aroun Rouss in cantina">
+              <div class="carousel-caption">Aroun Rouss in cantina</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="16.jpg" alt="Arzighè in trasferta al Colle del Collombardo">
+              <div class="carousel-caption">Arzighè in trasferta al Colle del Collombardo</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="17.jpg" alt="Aroun Bieunc in trasferta a Nuragus (Sardegna) insieme a Toma di Condove De.Co. e Canestrelli di Vaie">
+              <div class="carousel-caption">Aroun Bieunc in trasferta a Nuragus (Sardegna) insieme a Toma di Condove De.Co. e Canestrelli di Vaie</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="18.jpg" alt="Aroun Bieunc in trasferta al Rifugio Avanzà">
+              <div class="carousel-caption">Aroun Bieunc in trasferta al Rifugio Avanzà</div>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-btn next" onclick="moveSlide(1)">&#10095;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Striscia bianca con testi e hashtag scorrevoli -->
+  <div class="marquee-container">
+    <div class="marquee-track">
+      <span class="marquee-item">VINIDECRÙ <span>#VALSUSA</span></span>
+      <span class="marquee-item">VITICOLTURA EROICA <span>#WINEEXPERIENCE</span></span>
+      <span class="marquee-item">BORGATA ARRONCO <span>#PATATEMONTAGNA</span></span>
+      <span class="marquee-item">CONDOVE E GIAGLIONE <span>#FAMIGLIADECRÙ</span></span>
+      <span class="marquee-item">VINIDECRÙ <span>#VALSUSA</span></span>
+      <span class="marquee-item">VITICOLTURA EROICA <span>#WINEEXPERIENCE</span></span>
+      <span class="marquee-item">BORGATA ARRONCO <span>#PATATEMONTAGNA</span></span>
+      <span class="marquee-item">CONDOVE E GIAGLIONE <span>#FAMIGLIADECRÙ</span></span>
+    </div>
+  </div>
+
+  <!-- Territorio -->
+  <section id="territorio" class="section">
+    <div class="section-header">
+      <h2 class="section-title">IL NOSTRO TERRITORIO</h2>
+    </div>
+    <div class="territorio-grid">
+      <div class="territorio-text">
+        <p>Benvenuti a Condove, un gioiello incastonato nella scenografica cornice della Bassa Valle di Susa, storica via di passaggio e crocevia di culture transalpine. Il nostro borgo è custode orgoglioso di tradizioni antiche, celebrate nella celebre Fiera della Toma, e di un territorio che sale ardito verso le vette, regalandoci autentiche perle del gusto.</p>
+        <p>È in questa terra che nascono le nostre eccellenze: Vino Valsusa DOC, Toma di Condove De.Co. e Patata della Montagna di Condove De.Co..</p>
+        <p>Il cuore pulsante della nostra realtà batte a Borgata Arronco, a 750 metri sul livello del mare: un balcone naturale che abbraccia l’intera valle. In questo angolo incontaminato, accarezzato dai venti alpini e baciato dal sole, coltiviamo con immensa passione la nostra vigna più importante, dove la terra difficile si trasforma in eccellenza liquida.</p>
+        <p>La nostra dedizione alla montagna non si ferma qui: tra le alture di Borgata Arronco e Borgata Camporossetto (1000 metri sul livello del mare), ci prendiamo cura della coltivazione delle nostre pregiate Patate della Montagna di Condove De.Co..</p>
+        
+        <button onclick="openHistoryModal()" class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">
+          📜 La storia della viticoltura in valle &rarr;
+        </button>
+      </div>
+      <div id="map" class="territorio-map"></div>
+    </div>
+
+    <!-- Sezione Cosa Vedere nei Dintorni -->
+    <div style="margin-top: 4rem; padding-top: 3rem; border-top: 1px solid rgba(0,0,0,0.08);">
+      <h3 style="font-family: 'Syne', sans-serif; font-size: 1.8rem; color: #1a1817; margin-bottom: 1rem; text-align: center;">Cosa Vedere a Condove e Dintorni</h3>
+      <p style="font-size: 1rem; color: #555; text-align: center; max-width: 800px; margin: 0 auto 2.5rem; font-weight: 300;">
+        Clicca sulle schede per scoprire i dettagli, i tempi di percorrenza e le indicazioni stradali per visitare i luoghi più belli della nostra valle:
+      </p>
+
+      <div class="grid">
+        <div class="card" onclick="openPlaceModal('sacra')">
+          <div style="flex-grow: 1;">
+            <img src="19.jpg" alt="Sacra di San Michele" class="card-img">
+            <span class="card-tag">Monumento Simbolo</span>
+            <h3>Sacra di San Michele</h3>
+            <p>L'imponente abbazia benedettina arroccata sul monte Pirchiriano, simbolo del Piemonte.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('borgate')">
+          <div style="flex-grow: 1;">
+            <img src="20.jpg" alt="Borgate e Sentieri di Condove" class="card-img">
+            <span class="card-tag">Tradizione Alpina</span>
+            <h3>Borgate di Condove</h3>
+            <p>Un itinerario affascinante tra le 77 borgate alpine e le antiche mulattiere.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('collombardo')">
+          <div style="flex-grow: 1;">
+            <img src="21.jpg" alt="Colle del Collombardo" class="card-img">
+            <span class="card-tag">Alta Quota e Vini</span>
+            <h3>Colle del Collombardo</h3>
+            <p>Valico alpino a 1888 m s.l.m. celebre per il Santuario e i panorami meravigliosi.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('caprie')">
+          <div style="flex-grow: 1;">
+            <img src="22.jpg" alt="Castrum Capriatum" class="card-img">
+            <span class="card-tag">Archeologia Medievale</span>
+            <h3>Castrum Capriatum</h3>
+            <p>L'antico sito fortificato e complesso castrense della Valle di Susa.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('avigliana')">
+          <div style="flex-grow: 1;">
+            <img src="23.webp" alt="Laghi di Avigliana" class="card-img">
+            <span class="card-tag">Natura e Relax</span>
+            <h3>Laghi di Avigliana</h3>
+            <p>Un'oasi naturale protetta ideale per passeggiate ed escursioni in kayak.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('almese')">
+          <div style="flex-grow: 1;">
+            <img src="24.jpg" alt="Villa Romana di Almese" class="card-img">
+            <span class="card-tag">Archeologia Romana</span>
+            <h3>Villa Romana di Almese</h3>
+            <p>Uno dei complessi residenziali romani di epoca imperiale più importanti del Piemonte.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('musine')">
+          <div style="flex-grow: 1;">
+            <img src="25.jpg" alt="Monte Musinè" class="card-img">
+            <span class="card-tag">Escursionismo e Leggende</span>
+            <h3>Monte Musinè</h3>
+            <p>La montagna simbolo dell'imbocco della valle, ricca di sentieri e leggende.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('orridi')">
+          <div style="flex-grow: 1;">
+            <img src="26.jpg" alt="Orridi di Chianocco e Foresto" class="card-img">
+            <span class="card-tag">Natura e Avventura</span>
+            <h3>Orridi di Chianocco e Foresto</h3>
+            <p>Spettacolari canyon naturali scavati nella roccia dall'acqua.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('ranverso')">
+          <div style="flex-grow: 1;">
+            <img src="27.jpg" alt="Precettoria di Sant'Antonio di Ranverso" class="card-img">
+            <span class="card-tag">Arte e Spiritualità Gotica</span>
+            <h3>Precettoria di Sant'Antonio di Ranverso</h3>
+            <p>Gioiello medievale celebre per gli affreschi quattrocenteschi di Giacomo Jaquerio.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('susa')">
+          <div style="flex-grow: 1;">
+            <img src="28.jpg" alt="Susa e Exilles" class="card-img">
+            <span class="card-tag">Storia e Fortificazioni</span>
+            <h3>Susa Romana e Exilles</h3>
+            <p>La città di Susa ricca di monumenti romani e la maestosa fortezza militare.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('mandria')">
+          <div style="flex-grow: 1;">
+            <img src="29.jpeg" alt="Parco Naturale della Mandria" class="card-img">
+            <span class="card-tag">Natura e Storia Reale</span>
+            <h3>Parco Naturale della Mandria</h3>
+            <p>3.000 ettari di natura protetta, residenza di caccia sabauda e dimora della Bela Rosin.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('torino')">
+          <div style="flex-grow: 1;">
+            <img src="30.avif" alt="Torino" class="card-img">
+            <span class="card-tag">Città Regale e d'Arte</span>
+            <h3>Torino</h3>
+            <p>La prima capitale d'Italia, ricca di storia sabauda, musei di fama mondiale e fascino regale.</p>
+          </div>
+          <button class="btn" style="margin-top: auto; width: 100%;">Scopri di più &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Nota finale con link per aprire il modale separato del form Guida -->
+      <div style="text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px dashed rgba(74,21,33,0.2);">
+        <p style="font-size: 0.85rem; color: #666360; font-weight: 300;">
+          Per qualsiasi di questi posti è possibile un'uscita con la nostra Guida Naturalistica Ambientale certificata. 
+          <a onclick="openGuidaModal()" style="color: #4a1521; font-weight: 700; text-decoration: underline; cursor: pointer;">Contattaci!</a>
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Modale Storia della Viticoltura in Valle -->
+  <div id="historyModal" class="modal-overlay" onclick="closeHistoryModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeHistoryModal()">&times;</button>
+      <span class="card-tag">Patrimonio Storico della Valle di Susa</span>
+      <h2 class="modal-title">Il paesaggio e le origini della viticoltura in Valle di Susa</h2>
+      <div style="font-size: 0.95rem; color: #383431; line-height: 1.8; font-weight: 300;">
+        <p style="margin-bottom: 1rem;">Il paesaggio della Valle di Susa, in particolare lungo il versante orografico sinistro, è da sempre caratterizzato da vigneti che si estendono dai 700 fino ai 1.100-1.200 metri di quota, rappresentando alcune delle vigne più alte d'Europa. Le origini di questa coltivazione sono antichissime e affondano le radici nell'età pre-romana; già le popolazioni celtiche, insediatesi a partire dal VII secolo a.C., conoscevano la vite, e la successiva conquista romana tra il II e il I secolo a.C. rese la pratica più organizzata e diffusa.</p>
+        <p style="margin-bottom: 1rem;">Nell'alto Medioevo la viticoltura si ridusse inizialmente a spazi protetti, ma un impulso fondamentale arrivò nel 739 con il Testamento di Abbone, fondatore dell'Abbazia di Novalesa, che attesta la presenza di vigneti a Chiomonte, Exilles, Giaglione e Susa. Successivamente, tra l'XI e il XIV secolo, enti religiosi come l'Abbazia di Novalesa e quella di San Giusto di Susa consolidarono il possesso e la gestione di numerose vigne in tutta la valle.</p>
+        <p style="margin-bottom: 1rem;">Tra il XVI e il XIX secolo l'attività vitivinicola visse il suo apogeo. Nonostante le difficoltà legate a guerre e conflitti religiosi, le comunità locali realizzarono arditi terrazzamenti sostenuti da muretti a secco e opere ingegneristiche monumentali, come il "Pertus" di Colombano Romean (1526-1533), una galleria scavata per portare l'acqua all'irrigazione delle vigne di Cels e Ramats. In questo periodo si diffuse anche il sistema di coltivazione ad alteno, con filari alti e interfilari coltivati a cereali, e i vini valsusini divennero famosi e apprezzati anche in Piemonte, Savoia e Francia.</p>
+        
+        <h3 style="font-family: 'Syne', sans-serif; font-size: 1.3rem; color: #4a1521; margin: 1.5rem 0 0.8rem;">Focus su Condove: storia, borgate e viticoltura eroica</h3>
+        <p style="margin-bottom: 1rem;">Il Comune di Condove è collocato in Bassa Val Susa sulla soleggiata sinistra orografica della Dora Riparia. Dei suoi 71 km quadrati di territorio, ben 70 sono rappresentati da terreno montano, caratterizzato da decine di borgate, numerosi alpeggi e vasti pascoli. La coltivazione della vite in quest'area ha radici antichissime, testimoniate documentalmente fin dal 1238, anno in cui Martino Baralis, castellano di Mocchie — frazione posta a 900 metri di altitudine —, riceveva dai censi e dalle decime ben 110 sestari di vino. Nel Settecento il vigneto occupava l'1,50% del territorio comunale. Ancora ai primi del Novecento la coltivazione delle viti si spingeva fino ai 1.100-1.200 metri di altitudine, estendendosi in particolare nella fascia ben esposta di Villa di Mocchie, Gazzina, Bertolere, Borlera, Bonaudi, Pralesio e, sotto Frassinere, in località Ruceja.</p>
+        <p style="margin-bottom: 1rem;">Fino alla prima metà dell'Ottocento si registrava in queste zone un tipo di viticoltura pendolare del tutto caratteristica, contrassegnata da spostamenti stagionali. Dalle borgate di Frassinere e della Valle del Gravio i viticoltori si spostavano verso le zone rocciose della Ruceja, dove le vigne traevano grande vantaggio dalla forte esposizione e dall'azione riscaldante delle rocce che riflettono i raggi solari: fino all'inizio del secolo scorso il vino della Ruceja era considerato uno dei più apprezzati e richiesti nelle osterie. Dato il carattere aspro e scomodo della regione, spesso era il capofamiglia con un figlio a trasferirsi temporaneamente per curare le viti, portando con sé uno o due animali per sfruttare l'erba del podere e produrre il letame necessario alla concimazione.</p>
+        <p style="margin-bottom: 1rem;">All'interno delle vigne sorgevano modesti casolari isolati dotati di una piccola stalla, una cantina con gli attrezzi al pianterreno, una cucina e una stanza al primo piano; l'acqua veniva spesso ricavata raccogliendo quella piovana in piccole cisterne, e non di rado era presente un tinaggio annesso. Tra i filari o nei pressi delle case si coltivavano anche ortaggi, mentre in estate la famiglia si spostava all'alpeggio, principale attività da cui ci si assentava temporaneamente per i lavori della vigna. Spostamenti invernali analoghi avvenivano dalle borgate vicine a Mocchie (Alotti, Bertolere, Gagnor, Rocca) verso la Borlera e i Giagli, e dalla conca del Lajetto verso le vigne di Peroldrado in comune di Caprie. Inoltre, anche gli abitanti delle piccole cascine di fondovalle possedevano quasi sempre un appezzamento a vigna verso la montagna (nelle località Torretta, Vigne o Ceretto) per garantire il fabbisogno familiare.</p>
+        <p style="margin-bottom: 1rem;">Nelle zone intorno alle località Castellazzo e Poisatto erano molto diffusi gli alteni, mentre nel passaggio dalla zona di piano ai primi pendii le vigne prendevano il posto di campi e prati falciabili fino a 700 metri di quota. Sul medesimo versante, in direzione di Borgone, il territorio meno aspro permetteva la coltura della vite fino a 1.000 metri, ricavata in mezzo ai boschi di roverella grazie a immani lavori di terrazzamento con muretti a secco. Tra i vitigni storicamente più coltivati a Condove spiccava la varietà rustica del "Carcheirun", affiancata da Scarlatin, Avanà, Barbera, Grisa e Biquet.</p>
+
+        <h3 style="font-family: 'Syne', sans-serif; font-size: 1.3rem; color: #4a1521; margin: 1.5rem 0 0.8rem;">La crisi, il declino e la rinascita</h3>
+        <p style="margin-bottom: 1rem;">L'equilibrio di questa viticoltura eroica fu gravemente compromesso nella seconda metà dell'Ottocento e all'inizio del Novecento dall'arrivo di pesanti minacce parassitarie, tra cui l'oidio, la peronospora e la fillossera, che decimarono le superfici vitate. A ciò si aggiunse, a partire dal secondo dopoguerra, il progressivo abbandono dei campi dovuto all'industrializzazione della bassa valle e al trasferimento della popolazione verso le fabbriche, riducendo la produzione prevalentemente all'autoconsumo.</p>
+        <p style="margin-bottom: 1.5rem;">Nonostante le difficoltà, la vite ha resistito grazie alla caparbietà dei viticoltori locali e al supporto di Enti e Istituzioni. Negli ultimi decenni si è assistito a un graduale ritorno della viticoltura e al recupero dei vitigni autoctoni storici, culminato nel 1997 con la nascita della DOC Valsusa e il mantenimento del primato europeo per altitudine della coltivazione viticola sulle Alpi.</p>
+
+        <!-- Foto della montagna -->
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+          <img src="31.jpg" alt="La montagna di Condove al pieno della sua attività vitivinicola" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+          <div style="font-size: 0.88rem; font-weight: 600; color: #4a1521; font-style: italic; margin-top: 0.5rem;">La montagna di Condove al pieno della sua attività vitivinicola</div>
+        </div>
+
+      </div>
+      <button class="btn" onclick="closeHistoryModal()" style="width: 100%; text-align: center;">Chiudi la storia &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Storia Impaginata a Zig-Zag -->
+  <section id="storia" class="section">
+    <div class="section-header">
+      <h2 class="section-title">STORIA DELLA FAMIGLIA E DELL'AZIENDA AGRICOLA</h2>
+    </div>
+    <div class="storia-card">
+      
+      <!-- 1. LE ORIGINI DEI BONAUDO -->
+      <div class="history-zigzag-row">
+        <div class="history-text-box">
+          <h3>LE ORIGINI DEI BONAUDO</h3>
+          <p>
+            All'inizio dell'Ottocento la famiglia Bonaudo, originaria dei Bonaudi e già attiva nell'allevamento con Teresa Senor e suo marito, acquisisce la proprietà di una grande vigna in borgata Arronco. Il terreno terrazzato comprende parte di vigna a bacca rossa, parte a bacca bianca e, poco distante, un enorme appezzamento con frutteto, castagneto e una piccola zona per la produzione orticola.
+          </p>
+          <p>
+            Il figlio primogenito <span onclick="openPersonModal('firmino')" class="personaggio-link">Firmino</span> implementa le vigne al ritorno dal lavoro in miniera in Francia e in seguito sposa Adele Blandino; il fratello Giuseppe aiuta inizialmente il padre e il fratello nell'adolescenza, prima di essere richiamato al fronte dove perisce, mentre la sorella Onorina sposa Paolo Decrù.
+          </p>
+        </div>
+        <div class="history-img-box">
+          <div class="history-img-stack">
+            <div>
+              <img src="32.jpg" alt="Senor Teresa">
+              <div class="history-img-caption">Senor Teresa</div>
+            </div>
+            <div>
+              <img src="33.jpg" alt="Vacche al pascolo ai Bonaudi">
+              <div class="history-img-caption">Vacche al pascolo ai Bonaudi. Anno 1895.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. LE ORIGINI DEI DECRÙ -->
+      <div class="history-zigzag-row reverse">
+        <div class="history-text-box">
+          <h3>LE ORIGINI DEI DECRÙ</h3>
+          <p>
+            Le origini della famiglia Decrù affondano nel nonno materno di Paolo, un mugnaio originario di Piossasco attivo in borgata Fucine a Condove dagli inizi dell'Ottocento. Con la vendita del mulino nel 1828, la famiglia acquista il luogo dove sorge l'attuale azienda.
+          </p>
+          <p>
+            Quest'area, originariamente industriale, ospita una distilleria di tannino da legno di castagno e una fabbrica di lime temperate, oltre a un terreno con vigna urbana. Con il passare degli anni, i familiari costruiscono ex novo la casa colonica e riadattano i capannoni industriali a stalla e fienile, mantenendo la fucina per la riparazione dei carri agricoli.
+          </p>
+        </div>
+        <div class="history-img-box">
+          <div class="history-img-stack">
+            <div>
+              <img src="34.jpg" alt="Paolo Decrù con il suo fedele cavallo Biund">
+              <div class="history-img-caption">Paolo Decrù con il suo fedele cavallo Biund</div>
+            </div>
+            <div>
+              <img src="35.jpg" alt="1828: i Decrù arrivano in Via Cesare Meano">
+              <div class="history-img-caption">1828: i Decrù arrivano in Via Cesare Meano</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. INIZIO '900 -->
+      <div class="history-zigzag-row">
+        <div class="history-text-box">
+          <h3>INIZIO '900</h3>
+          <p>
+            Donato Decrù e Rosa Bruno continuano l'attività agricola, crescendo cinque figli che partecipano all'azienda di famiglia. Tra di essi, Francesco viene richiamato in guerra e perisce in Polonia, mentre Michele, Luigi, Vito e Paolo proseguono l'attività agricola e zootecnica. Paolo sposa Onorina Bonaudo, dalla cui unione nascono <span onclick="openPersonModal('vito')" class="personaggio-link">Vito Donato Firmino</span> e <span onclick="openPersonModal('angelo')" class="personaggio-link">Angelo Giuseppe</span>.
+          </p>
+          <p>
+            La fillossera, esplosa alla fine dell'Ottocento nei principali contesti viticoli, raggiunge Condove nel 1929. Le vigne più isolate nel bosco resistono più a lungo, ma il parassita finisce per propagarsi, rendendo necessario un primo grande reimpianto per sostituire la maggior parte delle viti quasi centenarie a piede franco, rimpiazzando completamente le uve a bacca bianca con quelle a bacca rossa. Fino al secondo dopoguerra la situazione rimane stazionaria, complice il richiamo al fronte di alcuni familiari, mentre prosegue la piccola attività agricola con qualche mucca, galline e due asini utilizzati come muli per i campi.
+          </p>
+        </div>
+        <div class="history-img-box">
+          <div class="history-img-stack">
+            <div>
+              <img src="36.jpg" alt="Nonna Maria nella vigna ad alteni di Condove">
+              <div class="history-img-caption">Nonna Maria nella vigna ad alteni di Condove</div>
+            </div>
+            <div>
+              <img src="37.jpg" alt="Tesseramento Coldiretti 1946">
+              <div class="history-img-caption">Tesseramento alla coldiretti: anno 1946</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. DOPOGUERRA -->
+      <div class="history-zigzag-row reverse">
+        <div class="history-text-box">
+          <h3>DOPOGUERRA</h3>
+          <p>
+            Prima di entrare a tempo pieno in azienda, Angelo svolge il servizio militare a Pistoia e Pisa. La vera svolta avviene con l'ingresso ufficiale di Vito Donato Firmino e di suo fratello Angelo: Vito alterna il lavoro in FIAT alla campagna e, appena maggiorenne, inizia a ristrutturare i locali che oggi ospitano magazzino, cantina, stalla e fienile.
+          </p>
+          <p>
+            Grazie all'impegno di Angelo, la produzione si concentra sul settore lattiero-caseario, con la vendita diretta del latte e la produzione di tome stagionate, fresche e a latte acido. Vito sposa Maria Calliero, e dalla coppia nascono i figli <span onclick="openPersonModal('rosario')" class="personaggio-link">Rosario</span> e Paola. Negli anni Settanta si registra il periodo di massimo sforzo: la stalla è piena, il lavoro tra i terrazzamenti diventa sempre più impegnativo e si gestiscono dieci ettari tra pascoli, erbai, seminativi, vigneti e frutteti, raggiungendo i picchi storici della produzione viticola, destinata prevalentemente all'autoconsumo familiare.
+          </p>
+        </div>
+        <div class="history-img-box">
+          <div class="history-img-stack">
+            <div>
+              <img src="38.jpg" alt="Vacche al pascolo al Gravio 1958">
+              <div class="history-img-caption">Vacche al pascolo al Gravio: 1958</div>
+            </div>
+            <div>
+              <img src="39.jpg" alt="Decrù Rosario in vigna a Condove">
+              <div class="history-img-caption">Decrù Rosario in vigna a Condove</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. ANNI 70-80 -->
+      <div class="history-zigzag-row">
+        <div class="history-text-box">
+          <h3>ANNI 70-80</h3>
+          <p>
+            All'inizio degli anni Settanta un grave incendio distrugge fienile, stalla, magazzino, cantina e parte della casa colonica. Per qualche mese le vacche vengono gestite allo stato brado, mentre Vito, dividendosi tra i turni in fabbrica e il lavoro notturno, ricostruisce quasi da solo l'intera struttura. Seguono anni di ottimi risultati in viticoltura e nella produzione di latte, che toccano i massimi livelli fino alla fine degli anni Novanta. L'allevamento, gestito tramite rimonta interna, punta sul miglioramento della razza bovina valdostana con l'iscrizione all'albo ANABORAVA, e il latte viene venduto fino al 2016. In seguito alla scomparsa di Firmino, le due realtà familiari si accorpano definitivamente.
+          </p>
+          <p>
+            Alla fine degli anni Settanta, Vito e Angelo eseguono il secondo grande reimpianto post-fillossera con un cambio radicale delle varietà, puntando sulla Neretta Cuneese e sul Carcajroun (Gamay). L'intervento interessa l'intera vigna dell'Arronco, con tutte le lavorazioni eseguite rigorosamente a mano a causa della criticità del terreno. All'inizio degli anni Ottanta Rosario si diploma in agraria e contribuisce alla progettazione dei nuovi spazi costruiti dal padre Vito, mentre la sorella Paola garantisce il proprio supporto nei campi. Tra gli anni Ottanta e l'inizio degli anni Duemila si sperimentano diverse varietà di mais, frumento e orzo, oltre a parcelle sperimentali dedicate ai vitigni autoctoni della Valle di Susa (tra cui alcuni filari con il raro vitigno Carcajroun Bieunc, tipico della montagna di Condove a inizio ‘900).
+          </p>
+        </div>
+        <div class="history-img-box">
+          <div class="history-img-stack">
+            <div>
+              <img src="40.jpg" alt="I prodotti dell'orto">
+              <div class="history-img-caption">I prodotti dell'orto</div>
+            </div>
+            <div>
+              <img src="41.jpg" alt="Paola e Rosario">
+              <div class="history-img-caption">Paola e Rosario</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. OGGI -->
+      <div class="history-zigzag-row reverse">
+        <div class="history-text-box">
+          <h3>OGGI</h3>
+          <p>
+            Con il passare del tempo i fondatori riducono i capi in stalla e, in seguito ai nuovi percorsi lavorativi di Rosario e Paola, l'attività lattiero-casearia viene progressivamente dismessa per concentrare tutte le energie sulla viticoltura. Nello stesso periodo in Valle di Susa si riscopre il Baratuciat, un vitigno storico locale. Rosario, ricordando i racconti di famiglia sulla presenza passata di uve a bacca bianca all'Arronco, decide di piantarne le prime trecento barbatelle, dando il via a vinificazioni sperimentali che comprendono: un vino bianco fermo al 100% Baratuciat tra il 2012 e il 2014; un vino bianco da uve appassite al 100% Baratuciat nel 2015; un vino bianco fermo composto per il 50% da Baratuciat e per il 50% da Carcajroun Bieunc nel 2016. Nel 2017 arriva la vera e propria svolta commerciale con il debutto dell'etichetta <strong>Aroun Bieunc</strong>, seguita poco dopo dal lancio del vino rosso <strong>Aroun Rouss</strong>.
+          </p>
+          <p>
+            Nel 2024 <span onclick="openPersonModal('michele')" class="personaggio-link">Michele</span>, figlio di Rosario, si diploma all'istituto agrario e si iscrive al corso universitario in Viticoltura ed Enologia. Il suo ingresso porta nuove idee ed energie in azienda, dove si occupa della gestione dell'area agronomica e della gestione del prodotto. L'anno successivo l'azienda espande ulteriormente i propri confini acquisendo una nuova vigna terrazzata nel cuore di Giaglione. Oggi l’attività è a prevalenza vitivinicola, ma di pregio restano la coltivazione delle Patate della Montagna di Condove De.Co. e la salvaguardia di numerose varietà rare e locali di frutta.
+          </p>
+        </div>
+        <div class="history-img-box">
+          <div class="history-img-stack">
+            <div>
+              <img src="42.jpg" alt="Vendemmia Arronco 2005">
+              <div class="history-img-caption">Vendemmia Arronco 2005</div>
+            </div>
+            <div>
+              <img src="1.jpg" alt="Vendemmia Arronco 2026">
+              <div class="history-img-caption">Vendemmia Arronco 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEZIONE FILOSOFIA -->
+      <div class="filosofia-container">
+        <h3 class="filosofia-title">La Nostra Filosofia & Viticoltura Eroica</h3>
+        <div class="filosofia-grid">
+          <div class="filosofia-item">
+            <h4>🍇 Coltivazione eroica e rispettosa</h4>
+            <p>Preserviamo la biodiversità dei terrazzamenti alpini assecondando i ritmi naturali e riducendo al minimo gli interventi;</p>
+          </div>
+          <div class="filosofia-item">
+            <h4>🧱 Custodia del paesaggio a secco</h4>
+            <p>Restauriamo a mano le antiche architetture in pietra, difendendo il territorio montano dall'erosione idrogeologica;</p>
+          </div>
+          <div class="filosofia-item">
+            <h4>🌿 Esaltazione dell'identità autoctona</h4>
+            <p>Valorizziamo vitigni rari come il Baratuciat per offrire nel calice la pura essenza minerale della Valle di Susa;</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Prodotti -->
+  <section id="prodotti" class="section">
+    <div class="section-header">
+      <h2 class="section-title">I NOSTRI PRODOTTI</h2>
+    </div>
+    <div class="grid">
+      
+      <div class="card" onclick="openProductModal('aroun-bieunc')">
+        <div>
+          <img src="43.jpg" alt="Aroun Bieunc" class="card-img-bottle">
+          <span class="card-tag">Vino Bianco</span>
+          <h3>Aroun Bieunc</h3>
+          <p>Vino bianco fresco, fruttato e armonico.</p>
+          <ul class="specs-list">
+            <li>* <strong>Vitigno:</strong> <span onclick="event.stopPropagation(); openGrapeModal('baratuciat')" class="vitigno-link">100% Baratuciat</span>;</li>
+            <li>* <strong>Coltivazione:</strong> Terrazzato a 750-800 m s.l.m., Guyot;</li>
+            <li>* <strong>Vendemmia:</strong> Metà settembre (manuale in cassetta);</li>
+            <li>* <strong>Bottiglie prodotte:</strong> 292.</li>
+          </ul>
+        </div>
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.6rem;">
+          <button class="btn btn-buy-card" onclick="event.stopPropagation(); openBuyModal('Aroun Bieunc')" style="width: 100%;">🛒 Acquista</button>
+          <button class="btn" style="width: 100%; pointer-events: none;">Scopri la scheda &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card" onclick="openProductModal('aroun-rouss')">
+        <div>
+          <img src="44.jpeg" alt="Aroun Rouss" class="card-img-bottle">
+          <span class="card-tag">Vino Rosso</span>
+          <h3>Aroun Rouss</h3>
+          <p>Vino rosso giovane dal carattere di montagna.</p>
+          <ul class="specs-list">
+            <li>* <strong>Vitigni:</strong> <span onclick="event.stopPropagation(); openGrapeModal('becuet')" class="vitigno-link">Becuet</span>, <span onclick="event.stopPropagation(); openGrapeModal('carcajroun')" class="vitigno-link">Carcajroun</span> e <span onclick="event.stopPropagation(); openGrapeModal('neretta')" class="vitigno-link">Neretta Cuneese</span>;</li>
+            <li>* <strong>Coltivazione:</strong> Terrazzato a 750-800 m s.l.m.;</li>
+            <li>* <strong>Vendemmia:</strong> Seconda e terza decade di settembre;</li>
+            <li>* <strong>Bottiglie prodotte:</strong> 402.</li>
+          </ul>
+        </div>
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.6rem;">
+          <button class="btn btn-buy-card" onclick="event.stopPropagation(); openBuyModal('Aroun Rouss')" style="width: 100%;">🛒 Acquista</button>
+          <button class="btn" style="width: 100%; pointer-events: none;">Scopri la scheda &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card" onclick="openProductModal('sette-terrazze')">
+        <div class="ribbon">In affinamento</div>
+        <div>
+          <img src="45.jpeg" alt="Sette Terrazze" class="card-img-bottle">
+          <span class="card-tag">Vino Rosso</span>
+          <h3>Sette Terrazze</h3>
+          <p>Vino rosso con carattere antico.</p>
+          <ul class="specs-list">
+            <li>* <strong>Vitigni:</strong> <span onclick="event.stopPropagation(); openGrapeModal('avana')" class="vitigno-link">Avanà</span>, <span onclick="event.stopPropagation(); openGrapeModal('becuet')" class="vitigno-link">Becuet</span> e <span onclick="event.stopPropagation(); openGrapeModal('barbera')" class="vitigno-link">Barbera</span>;</li>
+            <li>* <strong>Coltivazione:</strong> Terrazzato a 700-750 m s.l.m. (Giaglione);</li>
+            <li>* <strong>Vendemmia:</strong> Seconda e terza decade di settembre;</li>
+            <li>* <strong>Bottiglie prodotte:</strong> 350.</li>
+          </ul>
+        </div>
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.6rem;">
+          <button class="btn btn-buy-card" onclick="event.stopPropagation(); openBuyModal('Sette Terrazze')" style="width: 100%;">🛒 Prenota</button>
+          <button class="btn" style="width: 100%; pointer-events: none;">Scopri la scheda &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card" onclick="openProductModal('arzighe')">
+        <div>
+          <img src="46.jpeg" alt="Vino Rosato Arzighè" class="card-img-bottle">
+          <span class="card-tag">Vino Rosato</span>
+          <h3>Arzighè</h3>
+          <p>Vino rosato atipico.</p>
+          <ul class="specs-list">
+            <li>* <strong>Vitigni:</strong> <span onclick="event.stopPropagation(); openGrapeModal('baratuciat')" class="vitigno-link">Baratuciat</span> e <span onclick="event.stopPropagation(); openGrapeModal('carcajroun')" class="vitigno-link">Carcajroun</span>;</li>
+            <li>* <strong>Coltivazione:</strong> Terrazzato a 750-800 m s.l.m.;</li>
+            <li>* <strong>Vendemmia:</strong> Seconda decade di settembre;</li>
+            <li>* <strong>Bottiglie prodotte:</strong> 298.</li>
+          </ul>
+        </div>
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.6rem;">
+          <button class="btn btn-buy-card" onclick="event.stopPropagation(); openBuyModal('Arzighè')" style="width: 100%;">🛒 Acquista</button>
+          <button class="btn" style="width: 100%; pointer-events: none;">Scopri la scheda &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card" onclick="openProductModal('patate-montagna')">
+        <div>
+          <img src="47.jpeg" alt="Patate della Montagna di Condove De.Co." class="card-img-bottle">
+          <span class="card-tag">Eccellenza Territoriale</span>
+          <h3>Patate della Montagna di Condove De.Co.</h3>
+          <p>Coltivate in alta quota nel rispetto delle tradizioni locali.</p>
+          <ul class="specs-list">
+            <li>* <strong>Coltivazione:</strong> Borgata Arronco e Camporossetto (1000 m s.l.m.);</li>
+            <li>* <strong>Raccolta:</strong> A mano a fine estate;</li>
+            <li>* <strong>Certificazione:</strong> De.Co. Comune di Condove;</li>
+            <li>* <strong>Uso in cucina:</strong> Gnocchi, soufflé, creme, ravioli.</li>
+          </ul>
+        </div>
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.6rem;">
+          <button class="btn btn-buy-card" onclick="event.stopPropagation(); openBuyModal('Patate Montagna')" style="width: 100%;">🛒 Acquista</button>
+          <button class="btn" style="width: 100%; pointer-events: none;">Scopri la scheda &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card" onclick="openProductModal('patate-condove')">
+        <div>
+          <img src="48.jpeg" alt="Patate di Condove" class="card-img-bottle">
+          <span class="card-tag">Prodotto Tipico</span>
+          <h3>Patate di Condove</h3>
+          <p>Raccolte a mano nei nostri terreni montani.</p>
+          <ul class="specs-list">
+            <li>* <strong>Coltivazione:</strong> Terreni montani incontaminati;</li>
+            <li>* <strong>Raccolta:</strong> A mano da agosto a settembre;</li>
+            <li>* <strong>Uso in cucina:</strong> Gnocchi, soufflé, fritte.</li>
+          </ul>
+        </div>
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.6rem;">
+          <button class="btn btn-buy-card" onclick="event.stopPropagation(); openBuyModal('Patate Condove')" style="width: 100%;">🛒 Acquista</button>
+          <button class="btn" style="width: 100%; pointer-events: none;">Scopri la scheda &rarr;</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Modali di Servizio -->
+  <!-- Modale Acquisto -->
+  <div id="buyModal" class="modal-overlay" onclick="closeBuyModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeBuyModal()">&times;</button>
+      <span class="card-tag">Ordina i nostri prodotti</span>
+      <h2 class="modal-title">Acquista <span id="buyProductName"></span></h2>
+      <p style="font-size: 0.95rem; color: #555; margin-bottom: 1.5rem; line-height: 1.6;">Compila il form sottostante per inviarci la tua richiesta d'ordine. Ti ricontatteremo al più presto per confermare la disponibilità e concordare consegna e pagamento.</p>
+      
+      <form action="mailto:vinidecru@gmail.com" method="post" enctype="text/plain">
+        <div class="form-group" style="display:none;">
+          <input type="hidden" name="Prodotto_Richiesto" id="formProductName" value="">
+        </div>
+        <div class="form-group">
+          <label>Nome e Cognome</label>
+          <input type="text" name="Nome" required placeholder="Inserisci il tuo nome">
+        </div>
+        <div class="form-group">
+          <label>Email o Telefono</label>
+          <input type="text" name="Contatto" required placeholder="Inserisci il tuo contatto">
+        </div>
+        <div class="form-group">
+          <label id="buyQuantityLabel">Quantità (bottiglie)</label>
+          <input type="number" name="Quantità" min="1" value="1" required>
+        </div>
+        <div class="form-group">
+          <label>Note aggiuntive (indirizzo spedizione, richieste particolari)</label>
+          <textarea name="Note" rows="3" placeholder="Scrivi qui i dettagli per la consegna..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-buy-card" style="width: 100%;">Invia Richiesta d'Ordine</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="productModal" class="modal-overlay" onclick="closeProductModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeProductModal()">&times;</button>
+      <img id="modalImg" src="" alt="Dettaglio Prodotto" class="modal-img" style="display: none;">
+      <span id="modalTag" class="card-tag"></span>
+      <h2 id="modalTitle" class="modal-title"></h2>
+      
+      <!-- Pulsanti Azione Prodotto -->
+      <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <button class="btn btn-buy-card" onclick="openBuyModalFromProduct()" style="flex: 1;">🛒 Richiedi Acquisto</button>
+        <a id="modalPdfBtn" href="#" target="_blank" class="btn" style="display: none; flex: 1; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;">📄 Scarica Scheda Tecnica</a>
+      </div>
+      
+      <p id="modalDescription" style="font-size: 1rem; color: #444; margin-bottom: 1.5rem; line-height: 1.7;"></p>
+      <div style="background-color: #f9f8f6; padding: 1.5rem; border-radius: 14px; margin-bottom: 1.5rem;">
+        <h4 style="font-family: 'Syne', sans-serif; font-size: 1.1rem; color: #4a1521; margin-bottom: 0.8rem;">Caratteristiche e Specifiche:</h4>
+        <ul id="modalSpecs" class="storia-list" style="padding-left: 0;"></ul>
+      </div>
+      <button class="btn" onclick="closeProductModal()" style="width: 100%; text-align: center;">Chiudi &rarr;</button>
+    </div>
+  </div>
+
+  <div id="grapeModal" class="modal-overlay" onclick="closeGrapeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeGrapeModal()">&times;</button>
+      <span class="card-tag">Scheda Vitigno Storico</span>
+      <h2 id="grapeModalTitle" class="modal-title"></h2>
+      <p id="grapeModalDescription" style="font-size: 1rem; color: #444; margin-bottom: 1.5rem; line-height: 1.7; white-space: pre-line;"></p>
+      <button class="btn" onclick="closeGrapeModal()" style="width: 100%; text-align: center; margin-top: 1rem;">Chiudi &rarr;</button>
+    </div>
+  </div>
+
+  <!-- MODALE PERSONAGGI STORICI -->
+  <div id="personModal" class="modal-overlay" onclick="closePersonModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closePersonModal()">&times;</button>
+      <span class="card-tag">Protagonista della Nostra Storia</span>
+      <h2 id="personModalTitle" class="modal-title"></h2>
+      <p id="personModalDescription" style="font-size: 1rem; color: #444; margin-bottom: 1.5rem; line-height: 1.7; white-space: pre-line;"></p>
+      
+      <!-- Contenitore per le foto del personaggio -->
+      <div id="personModalGallery" style="display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 1.5rem;"></div>
+      
+      <button class="btn" onclick="closePersonModal()" style="width: 100%; text-align: center; margin-top: 2rem;">Chiudi &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Degustazioni ed Eventi -->
+  <section id="degustazioni" class="section">
+    <div class="section-header">
+      <h2 class="section-title">DEGUSTAZIONI ED EVENTI</h2>
+    </div>
+
+    <p class="degustazioni-intro">
+      Vieni a scoprire la nostra viticoltura eroica! Organizziamo visite guidate tra i vigneti terrazzati di Borgata Arronco e Giaglione con degustazione dei nostri vini e dei prodotti tipici locali.<br>
+      Le esperienze si svolgono previa prenotazione tramite il form sottostante.
+    </p>
+
+    <div class="degustazioni-options">
+      <div class="degustazione-card">
+        <div>
+          <img src="49.png" alt="Aperitivo italiano tra vino e sapori rustici">
+          <h3>Degustazione 2 Vini</h3>
+          <ul>
+            <li>* Visita guidata tra i vigneti terrazzati;</li>
+            <li>* Assaggio di 2 vini della nostra produzione eroica;</li>
+            <li>* Tagliere di prodotti tipici locali in abbinamento;</li>
+            <li>* Acqua e pane artigianale compresi.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="degustazione-card">
+        <div>
+          <img src="50.png" alt="Vini eroici e sapori rustici italiani">
+          <h3>Degustazione 3 Vini</h3>
+          <ul>
+            <li>* Visita guidata tra i vigneti terrazzati;</li>
+            <li>* Assaggio di 3 vini della nostra produzione eroica;</li>
+            <li>* Tagliere ricco con selezione di formaggi locali, salumi e specialità del territorio;</li>
+            <li>* Acqua e pane artigianale compresi.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-container">
+      <h3 style="font-family: 'Syne', sans-serif; font-size: 1.3rem; margin-bottom: 0.5rem; color: #4a1521;">Prenota la tua Esperienza</h3>
+      <form action="mailto:vinidecru@gmail.com" method="post" enctype="text/plain">
+        <div class="form-group">
+          <label>Nome e Cognome</label>
+          <input type="text" name="Nome" required placeholder="Inserisci il tuo nome">
+        </div>
+        <div class="form-group">
+          <label>Email o Telefono</label>
+          <input type="text" name="Contatto" required placeholder="Inserisci il tuo contatto">
+        </div>
+        <div class="form-group">
+          <label>Tipo di Esperienza</label>
+          <select name="Tipo_Degustazione" required>
+            <option value="Degustazione 2 Vini e prodotti locali">Degustazione di 2 vini e prodotti locali</option>
+            <option value="Degustazione 3 Vini e prodotti locali">Degustazione di 3 vini e prodotti locali</option>
+            <option value="Degustazione personalizzata">Degustazione personalizzata</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Numero di Partecipanti</label>
+          <input type="number" name="Partecipanti" min="1" value="4" required>
+        </div>
+        <div class="form-group">
+          <label>Data Richiesta</label>
+          <input type="date" name="Data_Richiesta" required>
+        </div>
+        <div class="form-group">
+          <label>Orario Richiesto (Seleziona tra le 10:00 e le 18:00)</label>
+          <select name="Orario_Richiesto" required>
+            <option value="10:00">10:00</option>
+            <option value="10:30">10:30</option>
+            <option value="11:00">11:00</option>
+            <option value="11:30">11:30</option>
+            <option value="12:00">12:00</option>
+            <option value="12:30">12:30</option>
+            <option value="13:00">13:00</option>
+            <option value="13:30">13:30</option>
+            <option value="14:00">14:00</option>
+            <option value="14:30">14:30</option>
+            <option value="15:00">15:00</option>
+            <option value="15:30">15:30</option>
+            <option value="16:00">16:00</option>
+            <option value="16:30">16:30</option>
+            <option value="17:00">17:00</option>
+            <option value="17:30">17:30</option>
+            <option value="18:00">18:00</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Note o Intolleranze Alimentari</label>
+          <textarea name="Note" rows="3" placeholder="Segnala allergie o richieste particolari..."></textarea>
+        </div>
+        <button type="submit" class="btn">Invia Richiesta di Prenotazione</button>
+      </form>
+    </div>
+
+    <!-- Eventi -->
+    <div class="eventi-container">
+      <div class="section-header">
+        <h2 class="section-title">I NOSTRI EVENTI IN PROGRAMMA</h2>
+      </div>
+
+      <div class="eventi-list">
+        <div class="evento-row">
+          <div class="evento-img-wrap">
+            <img src="51.jpg" alt="Fiera della Toma di Condove">
+          </div>
+          <div class="evento-content">
+            <span class="evento-badge">Prossimo Evento 10 e 11 Ottobre</span>
+            <h4>Fiera della Toma di Condove</h4>
+            <p>Saremo presenti alla Fiera della Toma di Condove con le nostre Patate di Montagna De.Co. e con i nostri vini di Borgata Arronco.</p>
+          </div>
+        </div>
+
+        <div class="evento-row">
+          <div class="evento-img-wrap">
+            <img src="52.jpg" alt="Sfida tra vitigni">
+          </div>
+          <div class="evento-content">
+            <span class="evento-badge">Prossimo Evento il 10 Ottobre</span>
+            <h4>Sfida tra vitigni: Baratuciat VS Nuragus</h4>
+            <p>Degustazione guidata a confronto tra vini ottenuti da uve Baratuciat dell'areale della Valle di Susa e uve Nuragus della Sardegna.</p>
+          </div>
+        </div>
+
+        <div class="evento-row">
+          <div class="evento-img-wrap">
+            <img src="53.jpg" alt="In cima a Punta dell'Accoccia">
+          </div>
+          <div class="evento-content">
+            <span class="evento-badge">Prossimo Evento il 6 Novembre</span>
+            <h4>In cima a Punta dell'Accoccia</h4>
+            <p>Insieme a Raccontapassi e Cesare, amico e guida naturalistica certificata, saliremo a Punta dell'Accoccia, balcone naturale con vista sulla Sacra di San Michele, con degustazione in quota; l'escursione proseguirà con l'arrivo alla Sacra di San Michele.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contatti & Come Arrivare -->
+  <section id="contatti-section" class="section">
+    <div class="section-header">
+      <h2 class="section-title">CONTATTACI & COME ARRIVARE</h2>
+    </div>
+
+    <div class="form-container">
+      <form action="mailto:vinidecru@gmail.com" method="post" enctype="text/plain">
+        <div class="form-group">
+          <label>Nome e Cognome</label>
+          <input type="text" name="Nome" required placeholder="Il tuo nome">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="Email" required placeholder="la.tua.email@esempio.it">
+        </div>
+        <div class="form-group">
+          <label>Oggetto</label>
+          <input type="text" name="Oggetto" placeholder="Richiesta informazioni">
+        </div>
+        <div class="form-group">
+          <label>Messaggio</label>
+          <textarea name="Messaggio" rows="5" required placeholder="Scrivi qui il tuo messaggio..."></textarea>
+        </div>
+        <button type="submit" class="btn">Invia Messaggio via Email</button>
+      </form>
+    </div>
+
+    <div class="travel-card">
+      <h3 style="font-family: 'Syne', sans-serif; font-size: 1.5rem; color: #4a1521; text-align: center; margin-bottom: 0.5rem;">Come Raggiungerci</h3>
+      <p style="font-size: 0.95rem; color: #666; text-align: center; margin-bottom: 1.5rem;">Indirizzo aziendale: Via Cesare Meano 1, 10055 Condove (TO)</p>
+      
+      <div class="travel-grid">
+        <div class="travel-item">
+          <h4>🚗 Da Torino (circa 30-40 min)</h4>
+          <p>Prendere la A32 (Autostrada del Frejus) in direzione Susa/Bardonecchia o la SS24. Uscire allo svincolo di <strong>Avigliana Ovest</strong>, immettersi sulla statale in direzione di Condove e raggiungere <strong>Via Cesare Meano 1</strong>, punto di riferimento per l'azienda e le visite.</p>
+        </div>
+        <div class="travel-item">
+          <h4>🇫🇷 Dalla Francia / Frejus</h4>
+          <p>Percorrere l'autostrada A32 in direzione Torino venendo dal Traforo del Frejus o dal Colle del Monginevro. Uscire allo svincolo di <strong>Chianocco</strong>, seguire le indicazioni stradali per Condove e raggiungere <strong>Via Cesare Meano 1</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <a href="https://wa.me/393290924551" class="whatsapp-float" target="_blank" title="Contattaci su WhatsApp">💬</a>
+
+  <!-- Footer -->
+  <footer id="contatti">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h2>ViniDecrù</h2>
+        <p><strong>Azienda Agricola Vini Decrù</strong></p>
+        <p>Decrù Paola Onorina</p>
+        <p>Via Cesare Meano 1, 10055 Condove (TO)</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">P.IVA 12140640017 | C.F. DCRPNR68C48H355W</p>
+      </div>
+      <div class="footer-contacts">
+        <p>Email: <a href="mailto:vinidecru@gmail.com">vinidecru@gmail.com</a></p>
+        <p>Tel: <a href="tel:+393297504135">+39 3297504135</a></p>
+        <p>WhatsApp: <a href="https://wa.me/393290924551">+39 3290924551</a></p>
+        <div class="social-links">
+          <a href="https://www.facebook.com" target="_blank">Facebook (ViniDecrù)</a>
+          <a href="https://www.instagram.com" target="_blank">Instagram (vinidecru)</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-logos-container">
+      <span class="footer-logos-title">I Nostri Marchi e Partnership</span>
+      <div class="footer-logos-grid">
+        <a href="https://www.consorziovalsusadoc.com" target="_blank" class="footer-logo-item" title="Consorzio Tutela Vini DOC Valsusa">
+          <img src="https://www.consorziovalsusadoc.com/wp-content/uploads/2021/04/logo-valsusa-doc.png" alt="Consorzio Tutela Vini DOC Valsusa" onerror="this.onerror=null; this.src='63.png';">
+        </a>
+        <a href="https://www.vinistoricisacra.com/eventi.php" target="_blank" class="footer-logo-item" title="Associazione Tutela Baratuciat e Vitigni Storici">
+          <img src="https://www.vinistoricisacra.com/images/logo.png" alt="Associazione Tutela Baratuciat e Vitigni Storici" onerror="this.onerror=null; this.src='64.jpg';">
+        </a>
+        <div class="footer-logo-item" title="De.Co. Denominazione Comunale di Origine - Comune di Condove">
+          <img src="65.jpeg" alt="De.Co. Patate di Condove">
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 ViniDecrù. Tutti i diritti riservati.</p>
+    </div>
+  </footer>
+
+  <!-- Modali Luoghi -->
+  <div id="placeModal" class="modal-overlay" onclick="closePlaceModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closePlaceModal()">&times;</button>
+      <img id="placeModalImg" src="" alt="Dettaglio Luogo" class="modal-img" style="display: none;">
+      <span id="placeModalTag" class="card-tag"></span>
+      <h2 id="placeModalTitle" class="modal-title"></h2>
+      <p id="placeModalTime" style="font-size: 0.9rem; font-weight: 600; color: #4a1521; margin-bottom: 1rem;"></p>
+      <p id="placeModalDescription" style="font-size: 1rem; color: #444; margin-bottom: 1.5rem; line-height: 1.7; white-space: pre-line;"></p>
+      <a id="placeModalMapsBtn" href="" target="_blank" class="btn" style="width: 100%; text-align: center; margin-bottom: 1rem; background-color: #1a1817; display: inline-flex;">Apri su Google Maps &rarr;</a>
+      <button class="btn" onclick="openGuidaModalFromPlace()" style="width: 100%; text-align: center; margin-bottom: 1rem; background-color: #802334;">Richiedi Escursione con Guida &rarr;</button>
+      <button class="btn" onclick="closePlaceModal()" style="width: 100%; text-align: center;">Chiudi scheda &rarr;</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    /* Javascript per il Carosello in Homepage */
+    let currentSlideIndex = 0;
+    function moveSlide(direction) {
+      const track = document.getElementById('homeCarousel');
+      if (!track) return;
+      const slides = track.children;
+      const totalSlides = slides.length;
+      
+      currentSlideIndex += direction;
+      
+      if (currentSlideIndex < 0) {
+        currentSlideIndex = totalSlides - 1;
+      }
+      if (currentSlideIndex >= totalSlides) {
+        currentSlideIndex = 0;
+      }
+      
+      track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+    }
+
+    /* Mappe e Funzioni Generali */
+    let mapInitialized = false;
+    let map;
+
+    const personaggiData = {
+      'firmino': {
+        title: 'Bonaudo Firmino',
+        desc: '',
+        images: [
+          {src: '56.jpg', caption: 'Foto ritratto di Bonaudo Firmino'},
+          {src: '55.jpg', caption: 'Firmino nel periodo di lavoro in Francia (vicino Champagne)'},
+          {src: '54.jpg', caption: 'Firmino già residente all\'Arronco'},
+          {src: '57.jpg', caption: 'Medaglia Ordine di Vittorio Veneto di Firmino'}
+        ]
+      },
+      'angelo': { 
+        title: 'Angelo', 
+        desc: 'Si diploma alla scuola di avviamento professionale e inizia subito a lavorare in azienda, dopo aver svolto il servizio militare a Pistoia e Pisa. Alla vigna dell\'Arronco andava rigorosamente a piedi da Condove, percorrendo la mulattiera Condove-Sigliodo: quando, dovendo rientrare, sentiva le campane della borgata sul versante opposto, correva giù per non perdere l\'orario della mungitura. Insieme al fratello ha condiviso una vita di grandi sacrifici. Nonostante avesse frequentato solo la scuola dell\'obbligo, aveva imparato perfettamente quattro lingue, che parlava con scioltezza con gli stranieri che arrivavano in azienda per prendere il latte. Si occupava prevalentemente dell’allevamento, della vigna e della produzione agricola.',
+        images: [
+          {src: '58.jpg', caption: 'Angelo Giuseppe Decrù'},
+          {src: '59.jpg', caption: 'Angelo nel periodo da militare a Pisa'}
+        ]
+      },
+      'vito': { 
+        title: 'Vito Donato Firmino', 
+        desc: 'Frequenta fino al secondo anno la scuola di avviamento professionale, lasciandola per andare a lavorare presso alcune fabbriche del territorio fino a stabilizzarsi in FIAT. Ha trascorso la sua vita a costruire e mantenere gli immobili di famiglia, occupandosi della realizzazione ex novo dei fabbricati familiari e alternando il lavoro in fabbrica con l’attività agricola. In azienda si occupava prevalentemente delle vigne, dei frutteti e della parte meccanica, senza però far mancare il suo aiuto al fratello in stalla. \n\nÈ stato da sempre attivo nel volontariato, dapprima come guardia ecologica e poi nell’antincendio boschivo, per valorizzare e salvaguardare il territorio.',
+        images: [
+          {src: '60.jpg', caption: 'Vito Donato Firmino Decrù e Calliero Maria'}
+        ]
+      },
+      'rosario': { 
+        title: 'Rosario Decrù', 
+        desc: 'Fin da piccolo, appassionato all’agricoltura, seguiva e teneva compagnia al papà Vito in vigna e allo zio Angelo in stalla. Si dedica agli studi in agraria e nel 1981 diviene perito agrario iscritto all’albo, seguendo poi corsi specialistici sul benessere animale e sulle tecniche genetiche per i bovini, che introduce in azienda. Progetta la stalla seguendo tutti i dettami del benessere animale: Maggiore metratura per capo; Ottima aerazione; Un alimentazione strutturata.\n\nInoltre, progetta il fienile e la cantina, poi costruiti dal papà Vito. Vince un concorso pubblico e da quarant’anni lavora in un ente pubblico, dove si occupa della promozione e valorizzazione dei prodotti enogastronomici locali, oltre che della salvaguardia del territorio agricolo delle Alpi Cozie, in particolare per gli alpeggi. È l’ideatore del marchio di valorizzazione “Formaggio Tipico Parchi Alpi Cozie”, nonché il supervisore del suo disciplinare, ed è degustatore ONAF. Spende buona parte della sua vita nel volontariato, dedicandosi in parte alla promozione dei prodotti locali in Italia e nel mondo. È tra i creatori del marchio “Toma di Condove”, nonché marchiatore ufficiale per più di dieci anni. È lui ad avere l’idea di impiantare il Baratuciat all’Arronco, ed è il primo a farne una versione passita in Valle di Susa. Nel 2019 è tra i pionieri dell’Associazione Baratuciat e Vitigni Storici della Sacra. In azienda si occupa della gestione della coltivazione delle patate, dei frutteti e delle vigne.',
+        images: [
+          {src: '61.jpg', caption: 'Rosario Decrù'}
+        ]
+      },
+      'michele': { 
+        title: 'Michele Decrù', 
+        desc: 'Segue le orme del nonno e del papà fin da subito: da piccolissimo si diverte durante le prime vendemmie e, prima di andare a scuola, dà il biberon ai vitellini. Si iscrive all’Istituto Agrario di Pianezza, dove consegue il diploma con ottimi voti, e sviluppa i suo tema di maturità sull’attività agropastorale della Montagna di Condove e sul suo prodotto tipico, la Toma di Condove De.Co. Terminata la scuola superiore, si iscrive al corso di laurea in Viticoltura ed Enologia per approfondire i dettami tecnici del settore e, nel frattempo, studia per diventare sommelier AIS. In azienda si occupa della gestione agronomica in toto e segue la filiera del prodotto finito.',
+        images: [
+          {src: '62.jpg', caption: 'Michele Decrù'}
+        ]
+      }
+    };
+
+    const vitigniData = {
+      'baratuciat': { 
+        title: 'Baratuciat', 
+        desc: `Il Baratuciàt è un vitigno piemontese autoctono dell’area giacente sulla morena glaciale della Val di Susa. La sua prima menzione ufficiale si trova nel Bollettino Ampelografico del 1877, periodo in cui veniva coltivato prevalentemente come uva da tavola. All'epoca la pianta era considerata poco adatta alla vinificazione, poiché la forte vigoria e l'allevamento a pergola non permettevano ai grappoli di raggiungere una completa maturazione. Si pensa che il nome derivi dall’espressione popolare piemontese Bërla 'd ciàt, legata alla forma allungata degli acini simile agli escrementi di gatto (ciàt), sebbene si ricordino anche varianti come "Bertacuciàt" o "Berlu'd ciàt". \n\nL'arrivo della fillossera in Val di Susa, avvenuto intorno al 1930, unito all'abbandono delle terre spinto dall'industrializzazione torinese nel secondo dopoguerra, ha quasi provocato la scomparsa del vitigno. La sua riscoperta si deve a Giorgio Falca, viticoltore di Almese, che nel 1991 — prima di abbattere un'antica pergola centenaria sopravvissuta al parassita e che ombreggiava la sua casa — salvò alcune marze affidandole a un vivaista per l'innesto su vite americana. Da quelle barbatelle nacque una prima piccola produzione destinata ai pasti in famiglia, vinificata inizialmente con lo stesso procedimento del vino rosso.\n\nFalca decise quindi di impiantare diverse barbatelle, affidandosi alle indicazioni della Facoltà di Agraria dell'Università di Torino (Disafa) — in particolare dei docenti Giuseppe Zeppa e Luca Rolle — e coinvolgendo il C.N.R. per le ricerche storiche e agronomiche. Le analisi del DNA confermarono l'autenticità del vitigno autoctono Baratuciat, stabilendo l'assenza di parentela con qualsiasi altra varietà italiana conosciuta. Per la vinificazione ci si affidò alla cantina sperimentale del Centro Bonafous di Chieri, dove vari esperimenti dimostrarono che la vinificazione in bianco — condotta senza la macerazione delle bucce e con un rigido controllo di temperature fresche e costanti per evitare l'ossidazione — garantiva i risultati migliori.\n\nNel 2008 il vitigno è stato iscritto nel Registro Nazionale delle Varietà di Vite, mentre nel 2019 il Consorzio dei produttori della DOC Valsusa ha ottenuto il riconoscimento della denominazione.\n\nAlla vista il vino si presenta con un colore giallo paglierino caratterizzato da riflessi verdognoli. Olfattivamente è intenso e aromatico, con note prevalenti di mela verde, ananas, fiori di campo e bianchi, eucalipto e miele d’acacia. Al palato offre una struttura importante e complessa, sorretta da una marcata sapidità e da una giusta e tipica acidità di montagna che ne esalta la freschezza. Caratterizzato da un finale tipicamente ammandorlato e da un elevato estratto secco, il Baratuciat è riconosciuto come un vino bianco di grande longevità, ideale per accompagnare aperitivi, antipasti, pesci di mare, carni bianche, insalate estive e formaggi erborinati. Adatto a molteplici modalità di vinificazioni tra cui passito e spumantizzato.` 
+      },
+      'avana': { 
+        title: 'Avanà', 
+        desc: `L'Avanà è un vitigno a bacca rossa autoctono della provincia di Torino, con la sua massima diffusione concentrata nella media e alta Val di Susa, in particolare nei comuni di Chiomonte, Meana, Gravere, Susa e Giaglione, e nel Pinerolese. Le ipotesi circa la sua origine lo fanno risalire all'Oltralpe, nel periodo in cui il Piemonte era unito alla Savoia. Considerato uno dei massimi emblemi della viticoltura eroica di montagna, l'Avanà viene coltivato spesso su ripidi terrazzamenti dove l'uso dei macchinari è impossibile e tutto il lavoro si svolge rigorosamente a mano, ricorrendo a sistemi come la controspalliera o l'alberello. Dal buon vigore vegetativo, la pianta richiede una potatura lunga e una cura attenta d'inverno, manifestando talvolta un'alternanza produttiva. I grappoli, di dimensioni medie o grandi e di forma cilindrica o piramidale, necessitano di una buona esposizione al sole per evitare difetti di colorazione, data la buccia spessa ma povera di pigmenti. Tradizionalmente povero di colore e di moderata gradazione alcolica, viene spesso vinificato in blend con altre uve nere locali per acquisire maggiore equilibrio. Tuttavia, se coltivato in posizioni particolarmente favorevoli ed espresso in purezza, regala un vino rosso fresco, leggero di corpo, fragrante, tipicamente fruttato e molto profumato, caratterizzato da un colore rosso rubino poco intenso talvolta con riflessi aranciati, un profumo fruttato talvolta con note vegetali e un sapore asciutto, armonico, acidulo, moderatamente tannico e talvolta con un lieve sentore di legno.` 
+      },
+      'becuet': { 
+        title: 'Becuet', 
+        desc: `Il Becuét è un vitigno a bacca nera molto raro, radicato da tempo immemore nell’alta e media Valle di Susa. Noto nella tradizione orale con il nome ironico e irriverente di "Berla 'd crava cita" a causa della forma inconsueta e piccola dei suoi acini ovali e di colore blu, è una pianta vigorosa che si spinge a popolare le altitudini più elevate dell'arco alpino, spesso oltre i mille metri, tra rocce e muretti a secco. Il grappolo si presenta piccolo, cilindrico o conico e spargolo, protetto da una buccia molto spessa. A causa della scarsa resistenza all'oidio la sua diffusione è rimasta confinata alla Valsusa, dove contribuisce in modo determinante alla produzione del vino DOC Valsusa. Dal punto di vista enologico, possiede un estratto notevole e un corredo polifenolico di primissimo piano; per questo motivo viene tradizionalmente impiegato come miglioratore nei tagli, rivelandosi l'inseparabile compagno dell'Avanà, per conferire al vino corpo, colore e struttura. Se vinificato in purezza, dà origine a vini di grande struttura adatti anche a lunghi invecchiamenti in legno, capaci di esprimere un colore rosso rubino, un profumo intenso, caratteristico e fruttato, e un sapore secco, armonico, fresco e abbastanza tannico.` 
+      },
+      'carcajroun': { 
+        title: 'Carcajroun / Gamay', 
+        desc: `Il Carcajroun, noto anche come Carcheirun o Carcajroun Bieunc nella variante a bacca bianca, è un vitigno rustico di antica tradizione alpina, storicamente presente nel paesaggio agrario e nei vigneti della Valle di Susa e delle aree limitrofe. Citato nelle cronache locali e nei vecchi registri rurali tra le varietà tipiche del territorio, si è tradizionalmente inserito all'interno del patrimonio ampelografico montano caratterizzato da coltivazioni estreme su terrazzamenti e pendii soleggiati. Impiegato sia nelle versioni a bacca nera che in quelle a bacca bianca, spesso utilizzate in passato in assemblaggio o in co-fermentazione per arricchire di complessità i vini locali, il Carcajroun ha condiviso le sorti della viticoltura eroica valsusina, resistendo ai passaggi storici e alle difficoltà climatiche, e trovando oggi nuova valorizzazione grazie alle aziende che recuperano i vitigni autoctoni storici della Valle di Susa.` 
+      },
+      'barbera': { 
+        title: 'Barbera', 
+        desc: `La Barbera è uno dei vitigni a bacca nera più celebri e diffusi del Piemonte, storicamente radicato in gran parte della regione e inserito, nel corso dei secoli, anche nel contesto della viticoltura della Valle di Susa. Pur non essendo originario dei contesti alpini più aspri, la sua straordinaria adattabilità e generosità produttiva hanno spinto i viticoltori a impiegarlo nel corso del Novecento anche nei versanti vallivi, a integrazione o compensazione delle varietà autoctone locali più deboli di colore o soggette ad alte acidità e fluttuazioni produttive. All'interno della denominazione Valsusa DOC, la Barbera rientra tra i vitigni autorizzati e storicamente adoperati negli uvaggi per dare man forte alla struttura e all'equilibrio complessivo del vino.` 
+      },
+      'neretta': { 
+        title: 'Neretta Cuneese', 
+        desc: `La Neretta Cuneese è un vitigno a bacca nera ritenuto un autentico autoctono della provincia di Cuneo, sebbene la genericità del nome, legato al colore scuro delle sue bacche, abbia generato nel tempo alcune omonimie e confusioni con altri vitigni simili. Dotata di vigoria moderata e di una produttività elevata e regolare, matura in epoca media o tardiva. Dal punto di vista ampelografico, mostra un grappolo medio, cilindrico, provvisto di due ali e molto compatto, con acini grandi e sferoidali ricoperti da una buccia spessa e ricca di pruina. Dalla sua vinificazione si ottiene un vino di colore rosso rubino intenso, caratterizzato al naso da note delicate, di corpo leggero, particolarmente piacevole da degustare giovane e fresco, pur possedendo una scarsa predisposizione all'invecchiamento. In Piemonte trova impiego e menzione in diversi areali di collina e montagna, inserendosi tra le varietà tradizionali di recupero e risultando da secoli tipico anche del contesto della Valle di Susa.` 
+      }
+    };
+
+    const prodottiData = {
+      'aroun-bieunc': { 
+        tag: 'Vino Bianco', 
+        title: 'Aroun Bieunc', 
+        img: '43.jpg', 
+        pdf: 'SCHEDA TECNICA AROUN BIEUNC.pdf', 
+        desc: 'Questo vino prende il nome dall\'antico toponimo della vigna, da inizio Ottocento in mano alla nostra famiglia. L\'area è da secoli vocata alla coltivazione della vite. Nel 2008 è stato impiantato il raro vitigno Baratuciat. Il vino presenta un aspetto cristallino, dal colore giallo paglierino, e un\'ottima scorrevolezza. Al naso è intenso e fruttato, con eleganti richiami al cedro e agli agrumi, arricchito da note floreali di sambuco e biancospino e da un leggero tocco vegetale. Nel complesso, offre un profilo olfattivo ampio e complesso. In bocca spicca la classica acidità, tipica del Baratuciat, che attrae il palato invitando a versarsi subito un altro calice.', 
+        specs: [
+          'Vitigno: 100% Baratuciat;', 
+          'Coltivazione: Terrazzato a 750-800 m s.l.m., Guyot, 5.000 piante/ha;', 
+          'Vendemmia: Metà settembre (manuale in cassetta);', 
+          'Affinamento: 8 mesi in acciaio inox e 4 mesi in bottiglia;',
+          'Gradazione alcolica: 10,5%;',
+          'Bottiglie prodotte: 292.'
+        ] 
+      },
+      'aroun-rouss': { 
+        tag: 'Vino Rosso', 
+        title: 'Aroun Rouss', 
+        img: '44.jpeg', 
+        pdf: 'Scheda Tecnica Aroun Rouss.pdf', 
+        desc: 'Questo vino prende il nome dall\'antico toponimo della vigna, da inizio Ottocento in mano alla nostra famiglia. L\'area è da secoli vocata alla coltivazione della vite. Post-fillossera la vigna era quasi nella totalità Neretta cuneese e Carcajroun; nei successivi impianti si sono aggiunti Becuet, Avanà, Chatus... Il vino presenta un aspetto limpido, dal colore rubino, con riflessi violacei sull\'unghia. Al naso si rivela intenso, il bouquet si apre con spiccate note floreali di viola e rosa selvatica, seguite da un frutto croccante e fragrante. Chiude con leggere sensazioni erbacee e una sottilissima vena speziata. In bocca esprire il suo carattere di montagna e la sua giovinezza.', 
+        specs: [
+          'Varietà: 30% Carcajroun (Gamay), 30% Becuet, 30% Neretta cuneese, 10% altri rari vitigni autoctoni;', 
+          'Coltivazione: Terrazzato a 750-800 m s.l.m., Guyot e doppio capovolto, 6.000 piante/ha;', 
+          'Vendemmia: Seconda e terza decade di settembre (manuale in cassetta);',
+          'Affinamento: 8 mesi in acciaio inox e 6 mesi in bottiglia (invecchiamento 2-8 anni);',
+          'Gradazione alcolica: 13%;',
+          'Bottiglie prodotte: 402.'
+        ] 
+      },
+      'sette-terrazze': { 
+        tag: 'Vino Rosso', 
+        title: 'Sette Terrazze', 
+        img: '45.jpeg', 
+        pdf: 'Scheda Tecnica Sette Terrazze.pdf', 
+        desc: 'Questo vino prende il nome dal numero di terrazze del vigneto terrazzato di Giaglione. Sette ripide terrazze intervallate ognuna dai muretti a secco.', 
+        specs: [
+          'Varietà: 33% Avanà, 33% Barbera, 33% Becuet;', 
+          'Coltivazione: Terrazzato a 700-750 m s.l.m. (Giaglione), Guyot, 7.500 piante/ha;', 
+          'Vendemmia: Seconda e terza decade di settembre (manuale in cassetta);',
+          'Affinamento: 8 mesi in acciaio inox e almeno 12 mesi in bottiglia (invecchiamento 2-8 anni);',
+          'Gradazione alcolica: 13%;',
+          'Bottiglie prodotte: 350.'
+        ] 
+      },
+      'arzighe': { 
+        tag: 'Vino Rosato', 
+        title: 'Arzighè', 
+        img: '46.jpeg', 
+        pdf: 'Scheda Tecnica Arzighè.pdf', 
+        desc: 'Questo vino prende il nome da Arzighè - dal piemontese: "azzardare", "osare" - è il rosato nato da un\'annata difficile. Un blend inedito, dove Baratuciat e Carcajroun si incontrano per la prima volta. Il vino presenta un aspetto limpido, dal colore rosa salmonato e di buona scorrevolezza. Al naso presenta note floreali di rosa canina e violetta, accompagnate da sentori fruttati, con una sottile sfumatura erbacea e minerale. In bocca spicca una vivace freschezza acida supportata da una piacevole spalla sapida.', 
+        specs: [
+          'Varietà: 50% Baratuciat e 50% Carcajroun;', 
+          'Coltivazione: Terrazzato a 750-800 m s.l.m., Guyot e doppio capovolto, 6.000 piante/ha;', 
+          'Vendemmia: Seconda decade di settembre (manuale in cassetta);',
+          'Affinamento: 12 mesi in acciaio inox e almeno 6 mesi in bottiglia;',
+          'Gradazione alcolica: 13%;',
+          'Bottiglie prodotte: 298.'
+        ] 
+      },
+      'patate-montagna': { tag: 'Eccellenza Territoriale', title: 'Patate della Montagna di Condove De.Co.', img: '47.jpeg', pdf: '', desc: 'Coltivate in alta quota a Borgata Arronco e Camporossetto (1000 m s.l.m.), raccolte a mano.', specs: ['Coltivazione: Borgata Arronco e Camporossetto (1000 m s.l.m.);', 'Raccolta: A mano a fine estate;', 'Certificazione: De.Co. Comune di Condove;', 'Uso in cucina: Gnocchi, soufflé, creme, ravioli.'] },
+      'patate-condove': { tag: 'Prodotto Tipico', title: 'Patate di Condove', img: '48.jpeg', pdf: '', desc: 'Patate di montagna coltivate nei nostri terreni montani.', specs: ['Coltivazione: Terreni montani incontaminati;', 'Raccolta: A mano da agosto a settembre;', 'Uso in cucina: Gnocchi, soufflé, fritte.'] }
+    };
+
+    const luoghiData = {
+      'sacra': { 
+        tag: 'Monumento Simbolo', 
+        title: 'Sacra di San Michele', 
+        img: "19.jpg", 
+        time: '⏱️ Tempo di percorrenza da Condove: 20 min in auto', 
+        desc: `La Sacra di San Michele è un imponente complesso architettonico arroccato sulla cima del monte Pirchiriano, in Val di Susa; questo straordinario monumento religioso rappresenta il simbolo ufficiale della Regione Piemonte ed è intitolato all'arcangelo Michele. La sua costruzione ebbe inizio tra la fine del decimo secolo e l'inizio dell'undicesimo, per volere di monaci benedettini; l'edificio si sviluppa vertiginosamente su imponenti pilastri alti fino a trenta metri che superano il dislivello della roccia. La celebre Scalinata dei Morti conduce i visitatori attraverso il portale dello zodiaco fino alla chiesa abbaziale superiore; all'interno della chiesa riposano le spoglie di alcuni membri di casa Savoia e di importanti prelati del medioevo. La leggenda narra che la costruzione fu guidata da prodigi celesti e che gli angeli stessi posassero le pietre di notte; la suggestiva atmosfera gotica e romanica del luogo ha ispirato celebri scrittori, tra cui Umberto Eco per il suo romanzo. La posizione geografica strategica offre ai visitatori un panorama mozzafiato che spazia su tutta la pianura torinese; raggiungibile a piedi lungo antichi sentieri di pellegrinaggio, la Sacra rimane una meta imperdibile di spiritualità e storia.`, 
+        maps: 'https://maps.google.com/?q=Sacra+di+San+Michele' 
+      },
+      'borgate': { 
+        tag: 'Tradizione Alpina', 
+        title: 'Borgate di Condove', 
+        img: "20.jpg", 
+        time: '⏱️ Tempo di percorrenza da Condove: 15-30 min in auto', 
+        desc: `Le borgate alpine di Condove rappresentano un patrimonio di architettura spontanea di notevole interesse storico e culturale; questi piccoli nuclei abitativi montani sono sparsi lungo i crinali che salgono verso le montagne della Val di Susa. Le abitazioni tipiche venivano costruite interamente in pietra locale, con coperture originariamente realizzate in lose; molte borgate conservano ancora intatti i tradizionali forni comunitari e i vecchi lavatoi in pietra d'epoca. La vita in questi borghi rurali ruotava attorno all'agricoltura di sussistenza, all'allevamento e ai castagneti secolari; tra le borgate più caratteristiche spicca quella di Lajetto, nota per la sua chiesa e per le antiche tradizioni. Oggi diversi di questi insediamenti sono stati parzialmente recuperati grazie a interventi di valorizzazione turistica; i sentieri che collegano le borgate offrono itinerari ideali per gli amanti del trekking e della natura incontaminata. Curiosamente, la borgata di Mocchie custodisce una vivace memoria storica legata alle vicende della Resistenza partigiana; la quiete di questi luoghi silenziosi permette ai visitatori di riscoprire i ritmi lenti della montagna piemontese.`, 
+        maps: 'https://maps.google.com/?q=Borgate+di+Condove' 
+      },
+      'collombardo': { 
+        tag: 'Alta Quota e Vini', 
+        title: 'Colle del Collombardo', 
+        img: '21.jpg', 
+        time: '⏱️ Tempo di percorrenza da Condove: 35-45 min in auto', 
+        desc: `Il Colle del Collombardo è un valico alpino situato a ben 1.888 metri di quota tra le valli di Susa e di Lanzo; sulla sommità del colle sorge il suggestivo santuario dedicato alla Madonna degli Angeli, meta di frequenti pellegrinaggi. Il luogo offre una vista panoramica eccezionale che abbraccia l'arco alpino occidentale e la pianura sottostante; la strada sterrata che sale al colle è molto apprezzata dagli appassionati di mountain bike e di escursionismo estivo. Durante la stagione invernale, la zona si trasforma in un paradiso incantevole per gli amanti delle ciaspolate; la storia del valico è legata a doppio filo agli scambi commerciali e pastorali tra le comunità locali valligiane. Nei pressi del santuario si trovano prati verdi ideali per soste rilassanti e picnic immersi nel verde; una curiosità locale narra di antiche processioni che un tempo partivano dai paesi vicini per invocare la pioggia. Il colle rappresenta un crocevia perfetto per scoprire la biodiversità e la tranquillità delle montagne torinesi; la sua posizione isolata garantisce un'esperienza autentica a contatto con la natura incontaminata delle valli.`, 
+        maps: 'https://maps.google.com/?q=Colle+del+Collombardo' 
+      },
+      'caprie': { 
+        tag: 'Archeologia Medievale', 
+        title: 'Castrum Capriatum', 
+        img: '22.jpg', 
+        time: '⏱️ Tempo di percorrenza da Condove: 10 min in auto', 
+        desc: `Il Castrum Capriatum è un antico insediamento fortificato di origine medievale situato nel territorio del comune di Caprie; questa fortificazione sorge in posizione strategica su un'altura rocciosa che domina l'imbocco della media Val di Susa. I resti archeologici testimoniano una frequentazione del sito risalente già all'epoca tardo romana e longobarda; la struttura originaria svolgeva compiti di avvistamento e controllo militare lungo le importanti vie di comunicazione. Oggi il complesso versa in stato di rudere, ma conserva tratti significativi delle mura di cinta e delle torri; le campagne di scavo hanno portato alla luce reperti ceramici e monete che raccontano la vita quotidiana del castello. Il sito è inserito all'interno di un percorso escursionistico che permette di unire archeologia e camminate nella natura; una curiosità affascinante lega il castrum alle leggende locali di tesori nascosti tra le fenditure della roccia. Dalle rovine è possibile godere di una prospettiva insolita e privilegiata sulla Dora Riparia e sui monti circostanti; il castrum rappresenta una tappa ideale per gli appassionati di storia medievale e di esplorazioni archeologiche minori.`, 
+        maps: 'https://maps.google.com/?q=Castello+del+Conte+Verde+Caprie' 
+      },
+      'avigliana': { 
+        tag: 'Natura e Relax', 
+        title: 'Laghi di Avigliana', 
+        img: '23.webp', 
+        time: '⏱ Tempo di percorrenza da Condove: 20 min in auto', 
+        desc: `I laghi di Avigliana, denominati Grande e Piccolo, sono due specchi d'acqua di origine glaciale nel parco naturale omonimo; questo prezioso ecosistema lacustre si trova ai piedi del monte Pirchiriano ed è circondato da boschi rigogliosi. Il Lago Grande è balneabile e attrezzato per attività ricreative, mentre il Lago Piccolo è protetto come riserva naturale; la flora e la fauna locali includono numerose specie di uccelli acquatici, rendendo il luogo ideale per il birdwatching. Sulle rive del Lago Grande sorgeva la storica fabbrica del Dinamitificio Nobel, importante testimonianza di archeologia industriale; oggi l'area ex industriale è stata riconvertita in un parco-museo all'aperto che racconta la storia della produzione chimica. I sentieri pedonali e ciclabili che costeggiano le sponde permettono di esplorare l'intera zona in totale tranquillità; una curiosità legata al territorio riguarda le leggende popolari sulla formazione dei laghi narrate dai contadini. La vicinanza con la città di Torino rende questa oasi verde una meta ideale per le gite fuori porta domenicali; i laghi offrono panorami mutevoli e affascinanti in ogni stagione dell'anno, dai colori autunnali ai riflessi primaverili.`, 
+        maps: 'https://maps.google.com/?q=Laghi+di+Avigliana' 
+      },
+      'almese': { 
+        tag: 'Archeologia Romana', 
+        title: 'Villa Romana di Almese', 
+        img: '24.jpg', 
+        time: '⏱️ Tempo di percorrenza da Condove: 15 min in auto', 
+        desc: `La Villa Romana di Almese è uno dei complessi residenziali rustici di epoca imperiale più importanti del Piemonte; situata nella frazione di Rivera, la villa risale al primo secolo dopo Cristo ed era il centro di un'azienda agricola. Gli scavi archeologici hanno portato alla luce strutture murarie, pavimenti decorati a mosaico e impianti termali; la pars urbana della villa comprendeva sale di rappresentanza decorate con affreschi di pregevole fattura artistica. La pars rustica era invece dedicata alla produzione agricola, alla conservazione del vino e alla lavorazione dei cereali; il parco archeologico adiacente consente ai visitatori di comprendere l'organizzazione spaziale dell'antica tenuta romana. La villa fu probabilmente abitata fino al tardo impero, subendo poi modifiche e parziali spoliazioni nel medioevo; un piccolo antiquario locale raccoglie e custodisce i reperti più significativi rinvenuti durante le campagne di scavo. Curiosamente, la posizione della villa sfruttava il microclima favorevole della valle per la coltivazione della vite; il sito costituisce una testimonianza fondamentale per ricostruire la romanizzazione e l'economia della Val di Susa.`, 
+        maps: 'https://maps.google.com/?q=Villa+Romana+di+Almese' 
+      },
+      'musine': { 
+        tag: 'Escursionismo e Leggende', 
+        title: 'Monte Musinè', 
+        img: '25.jpg', 
+        time: '⏱️ Tempo di percorrenza da Condove: 25 min in auto', 
+        desc: `Il monte Musinè domina la bassa Val di Susa con la sua caratteristica sagoma conica alta milletrecento metri; questa montagna è da secoli al centro di numerose leggende popolari legate a fenomeni misteriosi e avvistamenti insoliti. La tradizione narra che l'imperatore Costantino vi vide la celebre croce luminosa prima della battaglia di Ponte Milvio; negli ultimi decenni il monte è diventato famoso per presunti avvistamenti di oggetti volanti non identificati e UFO. Sulla cima della montagna è stata posizionata una grande croce metallica ben visibile dalla pianura torinese; i sentieri che salgono in vetta sono molto frequentati da escursionisti e appassionati di trekking in ogni stagione. La vegetazione del Musinè è tipica della macchia mediterranea alpina, grazie all'esposizione particolarmente soleggiata; una particolarità geologica del monte è la forte presenza di rocce ofiolitiche ricche di minerali ferrosi particolari. Le pendici della montagna custodiscono anche importanti siti archeologici con incisioni rupestri di epoca preistorica; il Musinè unisce il fascino della natura incontaminata a un alone persistente di mistero ed esoterismo popolare.`, 
+        maps: 'https://maps.google.com/?q=Monte+Musinè' 
+      },
+      'orridi': { 
+        tag: 'Natura e Avventura', 
+        title: 'Orridi di Chianocco e Foresto', 
+        img: '26.jpg', 
+        time: '⏱️ Tempo di percorrenza da Condove: 15 min in auto', 
+        desc: `Gli orridi di Chianocco e di Foresto sono spettacolari canyon naturali scavati nella roccia calcarea dai torrenti alpini; queste riserve naturali protette si trovano nel tratto medio della Val di Susa e offrono scenari di grande impatto. L'orrido di Chianocco è solcato dal torrente Prese, che ha modellato pareti rocciose verticali alte decine di metri; all'interno dell'orrido di Chianocco cresce rigoglioso un bosco di lecci, specie botanica tipicamente mediterranea. L'Orrido di Foresto si distingue invece per la presenza di imponenti sorgenti sulfuree e depositi di travertino; entrambe le aree sono attrezzate con passerelle e sentieri sospesi che permettono di esplorare le gole in sicurezza. La geomorfologia di questi luoghi crea microclimi particolari che favoriscono la sopravvivenza di specie botaniche rare; lungo i percorsi si possono osservare i resti di antichi mulini ad acqua e opere idrauliche tradizionali. Una curiosità geologica riguarda la continua formazione di roccia calcarea generata dalle acque ricche di minerali; queste gole rappresentano mete ideali per gli amanti della geologia, della fotografia naturalistica e delle escursioni.`, 
+        maps: 'https://maps.google.com/?q=Orrido+di+Chianocco' 
+      },
+      'ranverso': { 
+        tag: 'Arte e Spiritualità', 
+        title: 'Precettoria di Sant\'Antonio di Ranverso', 
+        img: '27.jpg', 
+        time: '⏱️ Tempo di percorrenza da Condove: 25 min in auto', 
+        desc: `La Precettoria di Sant'Antonio di Ranverso è un complesso monumentale storico situato nel comune di Buttigliera Alta; fondata nel dodicesimo secolo dai Canonici Regolari di Sant'Antonio, la struttura assisteva i malati di ergotismo. Il complesso comprende la chiesa abbaziale, il convento e l'antico ospedale per l'accoglienza dei pellegrini viandanti; la facciata della chiesa gotica è impreziosita da decorazioni in cotto e da pregevoli affreschi di Giacomo Jaquerio. All'interno si possono ammirare cicli pittorici di straordinario valore artistico risalenti al tardo gotico piemontese; la precettoria sorgeva lungo la Via Francigena, rappresentando un punto di riferimento fondamentale per i viaggiatori. Una curiosità legata all'ordine antoniano era l'allevamento dei maiali i cui grassi venivano usati per curare le malattie; oggi il monumento è gestito dalla Regione Piemonte e inserito in percorsi di valorizzazione culturale e turistica. L'atmosfera raccolta del chiostro e del giardino adiacente offre momenti di grande serenità ai visitatori; il sito testimonia in modo mirabile l'incontro tra assistenza sanitaria medievale, fede religiosa e grande arte.`, 
+        maps: 'https://maps.google.com/?q=Precettoria+di+Sant+Antonio+di+Ranverso' 
+      },
+      'susa': { 
+        tag: 'Storia e Fortificazioni', 
+        title: 'Susa Romana e Exilles', 
+        img: '28.jpg', 
+        time: '⏱️ Tempo di percorrenza da Condove: 30 min in auto', 
+        desc: `Susa, l'antica Segusium, conserva importanti monumenti romani come il celebre Arco di Augusto risalente al primo secolo avanti Cristo; la città fu capitale del regno di Cozio e snodo cruciale delle antiche strade transalpine verso la Gallia. Poco distante dalla cittadina sorge il possente Forte di Exilles, arroccato su uno sperone roccioso che domina la gola; questa storica fortezza militare vanta una secolare tradizione difensiva ed è stata un baluardo strategico del Piemonte. Le sue alte mura e i bastioni testimoniano l'evoluzione dell'architettura militare alpina attraverso i secoli e le dominazioni; Exilles è tristemente nota anche per essere stata una prigione di massima sicurezza statale per personaggi di rilievo. Una curiosità leggendaria lega infatti le celle del forte alla misteriosa figura storica della famosissima Maschera di Ferro; questo itinerario congiunto tra Susa ed Exilles unisce in modo perfetto l'archeologia romana alla potenza delle fortificazioni. Entrambe le località rappresentano tappe fondamentali per chiunque desideri approfondire la storia e la cultura della Val di Susa; la visita a questi siti regala un viaggio emozionante e completo attraverso i secoli di storia alpina.`, 
+        maps: 'https://maps.google.com/?q=Forte+di+Exilles' 
+      },
+      'mandria': { 
+        tag: 'Natura e Storia Reale', 
+        title: 'Parco Naturale della Mandria', 
+        img: '29.jpeg', 
+        time: '⏱️ Tempo di percorrenza da Condove: 35 min in auto', 
+        desc: `Il Parco Naturale della Mandria è una vasta area protetta situata a nord di Torino, recintata da mura storiche; l'area fu voluta da re Vittorio Emanuele Secondo come tenuta di caccia personale e riserva naturale privata. All'interno del parco si trova il Borgo Castello, sfarzosa residenza sabauda immersa nel verde della tenuta; la vegetazione è dominata da boschi secolari di querce, carpini e ampie radure prative destinate al pascolo. La fauna locale comprende cervi, daini, cinghiali e una ricca varietà di uccelli selvatici protetti; numerosi sentieri asfaltati e sterrati permettono di praticare escursioni a piedi, in bicicletta o a cavallo. La Cascina Rubbianetta ospita oggi un importante centro per la valorizzazione dell'allevamento equino piemontese; una curiosità legata alla storia del parco è l'allevamento intensivo di cavalli militari voluto dai Savoia. La vicinanza con la Reggia di Venaria Reale rende questo polmone verde meta ideale per visite combinate; il parco rappresenta un rifugio naturale straordinario dove la biodiversità convive con la storia regale piemontese.`, 
+        maps: 'https://maps.google.com/?q=Parco+Naturale+della+Mandria' 
+      },
+      'torino': { 
+        tag: 'Città Regale e d\'Arte', 
+        title: 'Torino', 
+        img: '30.avif', 
+        time: '⏱ Tempo di percorrenza da Condove: 35-40 min in auto', 
+        desc: `Torino è il capoluogo del Piemonte, situato ai piedi delle Alpi occidentali e bagnato dal fiume Po; la città vanta una storia illustre, essendo stata la prima capitale d'Italia e culla della dinastia sabauda. Il centro storico si caratterizza per l'esclusivo impianto a scacchiera e i suoi diciotto chilometri di portici; Piazza Castello rappresenta il cuore monumentale della città, circondata da edifici storici di inestimabile valore. La Mole Antonelliana, simbolo architettonico torinese, ospita oggi il prestigioso e celebre Museo Nazionale del Cinema; tra le eccellenze culturali spicca il Museo Egizio, considerato il più importante al mondo dopo quello del Cairo. La tradizione enogastronomica locale vanta prelibatezze uniche come il gianduiotto, il bicerin e i vini pregiati; una curiosità affascinante vuole Torino al centro di fitti miti esoterici legati alla magia bianca e nera. Le residenze sabaude che circondano la città sono state riconosciute dall'Unesco come patrimonio mondiale dell'umanità; vivace, elegante e industriale, Torino sa coniugare perfettamente il suo glorioso passato con l'innovazione moderna.`, 
+        maps: 'https://maps.google.com/?q=Torino' 
+      }
+    };
+
+    function openPersonModal(key) {
+      const data = personaggiData[key];
+      if (!data) return;
+      document.getElementById('personModalTitle').innerText = data.title || '';
+      document.getElementById('personModalDescription').innerText = data.desc || '';
+      
+      const gallery = document.getElementById('personModalGallery');
+      gallery.innerHTML = '';
+      if (data.images && data.images.length > 0) {
+        data.images.forEach(img => {
+          const div = document.createElement('div');
+          div.style.textAlign = 'center';
+          div.innerHTML = `<img src="${img.src}" alt="${img.caption}" style="max-width: 100%; max-height: 400px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 0.5rem;"><div style="font-size: 0.88rem; font-weight: 600; color: #4a1521; font-style: italic;">${img.caption}</div>`;
+          gallery.appendChild(div);
+        });
+      }
+      
+      document.getElementById('personModal').classList.add('show');
+    }
+
+    function closePersonModal() { document.getElementById('personModal').classList.remove('show'); }
+
+    function openFamigliaModal() { document.getElementById('famigliaModal').classList.add('show'); }
+    function closeFamigliaModal() { document.getElementById('famigliaModal').classList.remove('show'); }
+
+    function openGrapeModal(key) {
+      const data = vitigniData[key];
+      if (!data) return;
+      document.getElementById('grapeModalTitle').innerText = data.title;
+      document.getElementById('grapeModalDescription').innerText = data.desc;
+      document.getElementById('grapeModal').classList.add('show');
+    }
+    function closeGrapeModal() { document.getElementById('grapeModal').classList.remove('show'); }
+
+    function openHistoryModal() { document.getElementById('historyModal').classList.add('show'); }
+    function closeHistoryModal() { document.getElementById('historyModal').classList.remove('show'); }
+
+    function openBorgateTextModal() { document.getElementById('borgateTextModal').classList.add('show'); }
+    function closeBorgateTextModal() { document.getElementById('borgateTextModal').classList.remove('show'); }
+
+    function openCollombardoModal() { document.getElementById('collombardoModal').classList.add('show'); }
+    function closeCollombardoModal() { document.getElementById('collombardoModal').classList.remove('show'); }
+
+    function openGuidaModal() { document.getElementById('guidaModal').classList.add('show'); }
+    function closeGuidaModal() { document.getElementById('guidaModal').classList.remove('show'); }
+    
+    function openGuidaModalFromPlace() {
+      const placeName = document.getElementById('placeModalTitle').innerText;
+      closePlaceModal();
+      openGuidaModal();
+      const select = document.getElementById('guidaModalSelect');
+      if(select) {
+          for(let i=0; i<select.options.length; i++) {
+              if(select.options[i].text.includes(placeName) || placeName.includes(select.options[i].text)) {
+                  select.selectedIndex = i;
+                  break;
+              }
+          }
+      }
+    }
+
+    function openBuyModal(productName) {
+      document.getElementById('buyProductName').innerText = productName;
+      document.getElementById('formProductName').value = productName;
+      
+      const qtyLabel = document.getElementById('buyQuantityLabel');
+      if (productName.toLowerCase().includes('patat')) {
+        qtyLabel.innerText = 'Quantità (kg)';
+      } else {
+        qtyLabel.innerText = 'Quantità (bottiglie)';
+      }
+      
+      document.getElementById('buyModal').classList.add('show');
+    }
+    function closeBuyModal() { document.getElementById('buyModal').classList.remove('show'); }
+    
+    function openBuyModalFromProduct() {
+      const productName = document.getElementById('modalTitle').innerText;
+      closeProductModal();
+      openBuyModal(productName);
+    }
+
+    function openProductModal(key) {
+      const data = prodottiData[key];
+      if (!data) return;
+      document.getElementById('modalTag').innerText = data.tag;
+      document.getElementById('modalTitle').innerText = data.title;
+      document.getElementById('modalDescription').innerText = data.desc;
+      const pdfBtn = document.getElementById('modalPdfBtn');
+      if (data.pdf) { pdfBtn.href = data.pdf; pdfBtn.style.display = 'inline-flex'; } else { pdfBtn.style.display = 'none'; }
+      const imgEl = document.getElementById('modalImg');
+      if (data.img) { imgEl.src = data.img; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; }
+      const specsList = document.getElementById('modalSpecs');
+      specsList.innerHTML = '';
+      data.specs.forEach(spec => {
+        const li = document.createElement('li');
+        li.innerText = '* ' + spec;
+        specsList.appendChild(li);
+      });
+      document.getElementById('productModal').classList.add('show');
+    }
+    function closeProductModal() { document.getElementById('productModal').classList.remove('show'); }
+
+    function openPlaceModal(key) {
+      const data = luoghiData[key];
+      if (!data) return;
+      document.getElementById('placeModalTag').innerText = data.tag;
+      document.getElementById('placeModalTitle').innerText = data.title;
+      document.getElementById('placeModalTime').innerText = data.time;
+      document.getElementById('placeModalDescription').innerText = data.desc;
+      document.getElementById('placeModalMapsBtn').href = data.maps;
+      const imgEl = document.getElementById('placeModalImg');
+      if (data.img) { imgEl.src = data.img; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; }
+      document.getElementById('placeModal').classList.add('show');
+    }
+    function closePlaceModal() { document.getElementById('placeModal').classList.remove('show'); }
+
+    function initMap() {
+      if (mapInitialized) return;
+      mapInitialized = true;
+      map = L.map('map').setView([45.1265, 7.2800], 12);
+      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        attribution: 'Tiles &copy; Esri'
+      });
+      const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: '&copy; OpenTopoMap'
+      });
+      satelliteLayer.addTo(map);
+      const baseMaps = {
+        "🛰️ Vista Satellitare (Foto Aerea)": satelliteLayer,
+        "⛰️ Mappa Topografica": topoLayer
+      };
+      L.control.layers(baseMaps).addTo(map);
+      const customPin = L.divIcon({
+        className: 'custom-pin-wrapper',
+        html: `<div class="custom-pin-container"><div class="custom-pin-inner"></div></div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 28],
+        popupAnchor: [0, -28]
+      });
+      const punti = [
+        { lat: 45.116428, lng: 7.304669, title: "Vini Decrù (Sede Aziendale)" },
+        { lat: 45.126648, lng: 7.311970, title: "Vigna Aroùn (Vigna terrazzata dell'Arronco)" },
+        { lat: 45.126568, lng: 7.312994, title: "Case Arronco" },
+        { lat: 45.126811, lng: 7.312930, title: "Patate di Montagna - Arronco" },
+        { lat: 45.133717, lng: 7.313598, title: "Frutteto e Patate di Montagna Camporosseto" },
+        { lat: 45.134432, lng: 7.314425, title: "Patate di Montagna Camporosseto" },
+        { lat: 45.138181, lng: 7.008788, title: "Vigna Giaglione - Sette Terrazze" },
+        { lat: 45.114733, lng: 7.283230, title: "Patate di Condove" }
+      ];
+      punti.forEach(p => {
+        L.marker([p.lat, p.lng], { icon: customPin }).addTo(map)
+          .bindPopup(`<b>${p.title}</b>`);
+      });
+    }
+
+    function toggleMenu() {
+      const nav = document.getElementById('mobileNav');
+      nav.classList.toggle('show');
+    }
+
+    function showSection(sectionId) {
+      const nav = document.getElementById('mobileNav');
+      nav.classList.remove('show');
+      
+      if (sectionId === 'contatti') {
+        document.getElementById('contatti').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      
+      const sections = document.querySelectorAll('.section');
+      const marquee = document.querySelector('.marquee-container');
+      
+      sections.forEach(sec => {
+        sec.classList.remove('active');
+        sec.style.display = ''; 
+      });
+      
+      const target = document.getElementById(sectionId);
+      if (target) {
+        target.classList.add('active');
+        if (sectionId === 'territorio') {
+          setTimeout(() => {
+            initMap();
+            if (map) map.invalidateSize();
+          }, 200);
+        }
+      }
+      
+      if (sectionId === 'home') {
+        if (marquee) marquee.style.display = 'block';
+      } else {
+        if (marquee) marquee.style.display = 'none';
+      }
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
